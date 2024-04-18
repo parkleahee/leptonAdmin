@@ -174,8 +174,7 @@ Future<bool> _checkJwt(String token) async {
       String? pw = await storage.read(key: "token");
       String realPw = pw != null ? pw : "";
 
-      String realUrl = apiUrl + "user.php";
-      _getJwt(realId, realUrl).then((value) {
+      _getJwt(realId, realPw).then((value) {
         return true;
       });
     }
