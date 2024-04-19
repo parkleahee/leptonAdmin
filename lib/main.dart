@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'service/userService.dart';
+import 'service/jwtService.dart';
 import 'board.dart';
-import 'dto/user.dart';
 import 'property.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
-final storage =  FlutterSecureStorage();
+
+//final storage =  FlutterSecureStorage();
+UserService userService = UserService();
+JwtService jwtService = JwtService();
 void main() async {
-  print(apiUrl);
+  var id = await storage.read(key: "userId");
   await storage.read(key: "token").then((val) async {
-    print(val);
+    String token = val.toString();
     if (val != null) {
-      bool result = await _checkJwt(val);
+      bool result = await jwtService.checkJwt(val);
       if(result){
-        runApp(const Music_sheet_Board());
+        runApp(Music_sheet_Board());
       }else{
         runApp(const SignInPage2());
       }
@@ -102,87 +103,9 @@ class _FormContent extends StatefulWidget {
   State<_FormContent> createState() => __FormContentState();
 }
 
-Future<bool> _login(String id, String pw) async {
-  /// do something
-  String realUrl = apiUrl + "user.php";
-  print(realUrl);
-  //final response = await http.get(Uri.parse(realUrl),);
-  final response =
-      await http.post(Uri.parse(realUrl), headers: <String, String>{
-    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-  }, body: <String, String>{
-    "path": "login",
-    "userId": id,
-    "userPw": pw,
-  });
 
-  if (response.statusCode == 200) {
-    //print(response.body);
-    List<dynamic> jsonList = jsonDecode(response.body);
-    print(response.body);
-    Map<String, dynamic> jsonData = jsonList[0];
-    var user = User.fromJson(jsonData);
-    //  print(jsonData);
-    bool result = await _getJwt(id, pw).then((value)  {
-      if (value) {
-        storage.write(key: 'userId', value: user.userId);
-        storage.write(key: 'userPw', value: user.userPw);
-        return true;
-      }else{
-        return false;
-      }
-    });
-    return result;
-  }else{
-    return false;
-  }
-}
 
-Future<bool> _getJwt(String id, String pw) async {
-  String realUrl = apiUrl + "user.php";
-  final responsejwt =
-      await http.post(Uri.parse(realUrl), headers: <String, String>{
-    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-  }, body: <String, String>{
-    "path": "jwtCreate",
-    "userId": id,
-    "userPw": pw,
-  });
-  if (responsejwt.statusCode == 200) {
-    var token = responsejwt.body;
-    await storage.write(key: 'token', value: token);
-  }
-  return responsejwt.statusCode == 200;
-}
 
-Future<bool> _checkJwt(String token) async {
-  String realUrl = apiUrl + "user.php";
-  final responsejwt =
-      await http.post(Uri.parse(realUrl), headers: <String, String>{
-    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-  }, body: <String, String>{
-    "path": "jwtCheck",
-    "token": token,
-  });
-  if (responsejwt.statusCode == 200) {
-    if (responsejwt.body == "pass") {
-      return true;
-    } else if (responsejwt.body == "timeout") {
-      String? id = await storage.read(key: "token");
-      String realId = id != null ? id : "";
-
-      String? pw = await storage.read(key: "token");
-      String realPw = pw != null ? pw : "";
-
-      _getJwt(realId, realPw).then((value) {
-        return true;
-      });
-    }
-    return false;
-  } else {
-    return false;
-  }
-}
 
 class __FormContentState extends State<_FormContent> {
   final _idTextEditController = TextEditingController();
@@ -304,7 +227,7 @@ class __FormContentState extends State<_FormContent> {
                     ),
                   ),
                   onPressed: () async {
-                    _login(
+                    userService.login(
                         _idTextEditController.text, _pwTextEditController.text).then((value) {
                           print('로그인 성공'+value.toString());
                           if(value){
