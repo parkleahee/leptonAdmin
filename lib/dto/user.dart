@@ -4,6 +4,7 @@ class User {
   final String userName;
   final String userChurch;
 
+
   User(this.userId, this.userPw, this.userName, this.userChurch);
 
   User.fromJson(Map<String, dynamic> json)
@@ -11,6 +12,7 @@ class User {
         userPw = json['userPw'],
         userName = json['userName'],
         userChurch = json['userChurch'];
+
 
   Map<String, dynamic> toJson() => {
         'userId': userId,
