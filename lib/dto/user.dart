@@ -1,11 +1,11 @@
 class User {
   final String userId;
   final String userPw;
-  final String userName;
-  final String userChurch;
+  String userName;
+  String userChurch;
+  List<String>? team;
 
-
-  User(this.userId, this.userPw, this.userName, this.userChurch);
+  
 
   User.fromJson(Map<String, dynamic> json)
       : userId = json['userId'],
