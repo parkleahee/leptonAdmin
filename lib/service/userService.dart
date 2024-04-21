@@ -29,12 +29,12 @@ Future<bool> login(String id, String pw) async {
     //print(response.body);
     //   List<dynamic> jsonList = jsonDecode(response.body);
     Map<String, dynamic> jsonData = jsonDecode(response.body);
-    var user = loginUser.fromJson(jsonData);
+    loginUser.fromJson(jsonData);
      print(jsonData);
     bool result = await jwtService.getJwt(id, pw).then((value)  {
       if (value) {
-        storage.write(key: 'userId', value: user.userId);
-        storage.write(key: 'userPw', value: user.userPw);
+        storage.write(key: 'userId', value: loginUser.userId);
+        storage.write(key: 'userPw', value: loginUser.userPw);
        // getTeam(user.userId);
         return true;
       }else{
