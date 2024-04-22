@@ -1,13 +1,11 @@
-/**
- * Author: Damodar Lohani
- * profile: https://github.com/lohanidamodar
- */
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:worshipsheet/dto/loginUser.dart';
 import 'package:worshipsheet/property.dart';
 
 import '../board/board_list.dart';
+import '../board/make_sheet.dart';
 
 class User_Main_Page extends StatelessWidget {
 
@@ -15,6 +13,7 @@ class User_Main_Page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(LoginUser.instance.toString());
     var orangeTextStyle = const TextStyle(
       color: Colors.deepOrange,
     );
@@ -97,8 +96,21 @@ class User_Main_Page extends StatelessWidget {
 
               const SizedBox(width: 16.0),
               Expanded(
-                child: _buildWikiCategory(FontAwesomeIcons.lock,
-                    "My private notes", Colors.blue.withOpacity(0.6)),
+                child: GestureDetector(
+                  onTap: () async {
+                    // 버튼을 눌렀을 때의 동작을 정의합니다.
+                    // 예를 들어, 다른 페이지로 이동하거나 다른 동작을 수행할 수 있습니다.
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Make_Sheet()),
+                    );
+                  },
+                  child: _buildWikiCategory(
+                    FontAwesomeIcons.calendarCheck,
+                    "새 콘티 만들기",
+                    Colors.deepOrange.withOpacity(0.7),
+                  ),
+                ),
               ),
             ],
           ),
@@ -122,11 +134,11 @@ class User_Main_Page extends StatelessWidget {
             style: orangeTextStyle,
           ),
           const SizedBox(height: 10.0),
-          _buildRecentWikiRow('text1', "Brand Guideline"),
+          _buildRecentWikiRow(logoUrl, "Brand Guideline"),
           const SizedBox(height: 5.0),
-          _buildRecentWikiRow('text2', "Project Grail Sprint plan"),
+          _buildRecentWikiRow(logoUrl, "Project Grail Sprint plan"),
           const SizedBox(height: 5.0),
-          _buildRecentWikiRow('text3' ,"Personal Wiki"),
+          _buildRecentWikiRow(logoUrl ,"Personal Wiki"),
           const SizedBox(height: 20.0),
           Row(
             children: <Widget>[

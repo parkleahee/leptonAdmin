@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:worshipsheet/property.dart';
 import 'dart:convert';
 
+import 'make_sheet.dart';
+
 class Music_sheet_Board extends StatefulWidget {
   @override
   _Music_sheet_BoardState createState() => _Music_sheet_BoardState();
@@ -84,7 +86,12 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        floatingActionButton: FloatingActionButton(onPressed: (){},//플로팅버튼
+        floatingActionButton: FloatingActionButton(onPressed: (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Make_Sheet()),
+          );
+        },//플로팅버튼
           backgroundColor: Colors.cyan,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(35)),
           child: const Icon(
@@ -168,7 +175,6 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
                   }
 
                   // 게시글 아이템 표시
-                  final post = _posts[index];
                   return buildList(context, index);
                 },
                 separatorBuilder: (BuildContext context, int index) =>

@@ -26,15 +26,14 @@ Future<bool> login(String id, String pw) async {
   });
 
   if (response.statusCode == 200) {
-    //print(response.body);
+    print(response.body);
     //   List<dynamic> jsonList = jsonDecode(response.body);
     Map<String, dynamic> jsonData = jsonDecode(response.body);
     loginUser.fromJson(jsonData);
-     print(jsonData);
     bool result = await jwtService.getJwt(id, pw).then((value)  {
       if (value) {
         storage.write(key: 'userId', value: loginUser.userId);
-        storage.write(key: 'userPw', value: loginUser.userPw);
+      //  storage.write(key: 'userPw', value: loginUser.userPw);
        // getTeam(user.userId);
         return true;
       }else{
@@ -46,7 +45,7 @@ Future<bool> login(String id, String pw) async {
     return false;
   }
 }
-}
+
 
 void getTeam(String userid) async {
   String realUrl = apiUrl + "user/user.php";
@@ -64,3 +63,26 @@ void getTeam(String userid) async {
     loginUser.team = jsonList;
   }
 }
+
+void getUserInfo(String userid, String token) async {
+  String realUrl = apiUrl + "user/user.php";
+  //final response = await http.get(Uri.parse(realUrl),);
+  LoginUser loginUser = LoginUser.instance;
+  final response =
+  await http.post(Uri.parse(realUrl), headers: <String, String>{
+    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+  }, body: <String, String>{
+    "path": "getUserInfo",
+    "userId": userid,
+    "token" : token,
+  });
+  if (response.statusCode == 200) {
+    Map<String, dynamic> jsonData = jsonDecode(response.body);
+    loginUser.fromJson(jsonData);
+  }
+}
+
+
+
+}//클래스 end
+

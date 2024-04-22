@@ -3,239 +3,205 @@
  * profile: https://github.com/lohanidamodar
  */
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'dart:math';
-
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
+import 'package:worshipsheet/dto/loginUser.dart';
 import 'package:worshipsheet/property.dart';
-import 'package:worshipsheet/service/imageService.dart';
 
-ImageService imageService = ImageService();
+import '../../service/boardService.dart';
+
+BoardServise boardServise = BoardServise();
+LoginUser loginUser = LoginUser.instance;
+
 class Make_Sheet extends StatefulWidget {
-
-  const Make_Sheet({super.key});
   @override
   _Make_SheetState createState() => _Make_SheetState();
 }
 
 class _Make_SheetState extends State<Make_Sheet> {
-  String? text;
-  TextEditingController? _controller;
-  final List<String> avatars = [
-    logoUrl,
-    logoUrl,
-  ];
-  final List<Image_One> imageList = [
+//  List<Image> _imageFiles = [];
+  List<ImgInfo> imageFiles = [];
 
-  ];
-  final rand = Random();
+  bool imageTest(Uint8List header) {
+    const List<List<int>> signatures = [
+      [0xFF, 0xD8], // JPEG
+      [0x89, 0x50, 0x4E, 0x47], // PNG
+      [0x47, 0x49, 0x46], // GIF
+      [0x49, 0x49, 0x2A, 0x00], // TIFF
+      [0x42, 0x4D], // BMP
+    ];
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
+    for (final signature in signatures) {
+      if (header.length >= signature.length &&
+          header.sublist(0, signature.length).every((element) => element == signature[signature.indexOf(element)])) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile == null) return;
+
+    try {
+      Uint8List bytes;
+      // 파일 경로의 파일을 바이트 배열로 읽어옴
+      if (pickedFile is File) {
+        bytes = await pickedFile.readAsBytes();
+      } else {
+        bytes = await pickedFile.readAsBytes();
+      }
+
+      //final imgCheck = await imageTest(bytes);
+      // if (!imgCheck) {
+      //   // 유효한 이미지가 아닌 경우 처리
+      //   print('유효한 이미지가 아닙니다.');
+      //   return;
+      // }
+
+      // 읽은 바이트 배열을 Base64로 인코딩
+      String img64 = base64Encode(bytes);
+
+      // Base64로 인코딩된 이미지를 이미지로 변환
+      Image img = Image.memory(base64Decode(img64));
+
+      // 이미지 리스트에 추가
+      setState(() {
+        imageFiles.add(ImgInfo(imageFiles.length+1,img64,img));
+      });
+    } catch (e, s) {
+      // 파일을 읽는 도중 문제가 발생한 경우 처리
+      print('파일을 읽는 도중 문제가 발생했습니다: $e');
+      print('Stack trace: ${s}');
+    }
+  }
+
+
+//이미지 삭제
+  // 이미지 삭제 컨펌 메소드
+  Future<void> _confirmDeleteImage(int index) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('이미지 삭제'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('해당 이미지를 삭제하시겠습니까?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('취소'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('삭제'),
+              onPressed: () {
+                setState(() {
+                  imageFiles.removeAt(index);
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chat"),
+        title: Text('콘티 생성'),
       ),
       body: Column(
-        children: <Widget>[
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          //이미지 리스트 표시
           Expanded(
-            child: ListView.separated(
-              physics: const BouncingScrollPhysics(),
-              separatorBuilder: (context, index) {
-                return const SizedBox(height: 10.0);
+            child: ListView.builder(
+              itemCount: imageFiles.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    _confirmDeleteImage(index);
+                  },
+                  child: Container(
+                    margin: EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: imageFiles[index].img,
+                  ),
+                );
               },
-              reverse: true,
-              itemCount: imageList.length,
-              itemBuilder: (BuildContext context, int index) {
-                Image_One m = imageList[index];
-                if (m.imageNum == 0) return _buildMessageRow(m, current: true);
-                return _buildMessageRow(m, current: false);
-              },
             ),
           ),
-          _buildBottomBar(context),
-        ],
-      ),
-    );
-  }
-
-  Container _buildBottomBar(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        vertical: 8.0,
-        horizontal: 16.0,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(30.0),
-      ),
-      padding: const EdgeInsets.symmetric(
-        vertical: 8.0,
-        horizontal: 20.0,
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: TextField(
-              textInputAction: TextInputAction.send,
-              controller: _controller,
-              decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 20.0,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+              backgroundColor: Colors.blue, // 배경색
+              textStyle: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ), // 텍스트 스타일
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24), // 버튼 모양
+                side: BorderSide(color: Colors.grey), // 테두리 설정
+              ),
+              elevation: 8, // 그림자
+            ),
+            onPressed: _pickImage,
+            child: Text('이미지 추가',
+              style: TextStyle(
+                  color: Colors.white, fontSize: 13),
+            ),
+          ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                  backgroundColor: Colors.blueGrey, // 배경색
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ), // 텍스트 스타일
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24), // 버튼 모양
+                    side: BorderSide(color: Colors.grey), // 테두리 설정
                   ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0)),
-                  hintText: "Aa"),
-
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.send),
-            color: Theme.of(context).primaryColor,
-            onPressed: ()  {
-              imageService.insertImage().then((value) {
-               Image img = Image.memory(base64Decode(value));
-               setState(() {
-                 imageList.add(Image_One(imageList.length+1, img, value));
-               });
-              }
-              );
-
-            },
-          )
-        ],
-      ),
-    );
-  }
-
-
-
-  Row _buildMessageRow(Image_One message, {required bool current}) {
-    return Row(
-      mainAxisAlignment:
-      current ? MainAxisAlignment.end : MainAxisAlignment.start,
-      crossAxisAlignment:
-      current ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-      children: <Widget>[
-        SizedBox(width: current ? 30.0 : 20.0),
-        if (!current) ...[
-          CircleAvatar(
-            backgroundImage: NetworkImage(
-              current ? avatars[0] : avatars[1],
-            ),
-            radius: 20.0,
-          ),
-          const SizedBox(width: 5.0),
-        ],
-
-        ///Chat bubbles
-        Container(
-          padding: const EdgeInsets.only(
-            bottom: 5,
-            right: 5,
-          ),
-          child: Column(
-            crossAxisAlignment:
-            current ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                constraints: BoxConstraints(
-                  minHeight: 40,
-                  maxHeight: 250,
-                  maxWidth: MediaQuery.of(context).size.width * 0.7,
-                  minWidth: MediaQuery.of(context).size.width * 0.1,
+                  elevation: 8, // 그림자
                 ),
-                decoration: BoxDecoration(
-                  color: current ? Colors.red : Colors.white,
-                  borderRadius: current
-                      ? const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    bottomLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  )
-                      : const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 15, top: 10, bottom: 5, right: 5),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: current
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
-                    children: [ListView.builder(
-                      itemCount: imageList.length,
-                      itemBuilder: (context, index) {
-                        // 리스트에서 현재 인덱스에 해당하는 요소를 가져옵니다.
-                        final item = imageList[index].img;
-
-                        // 가져온 요소를 기반으로 위젯을 반환합니다.
-                  //      return _buildMessageRow(item: item);
-                      },
-                    )
-],
-                    //      <Widget>[
-
-                      // Padding(
-                      //   padding: const EdgeInsets.only(right: 10),
-                      //   child:
-                      //   // Text(
-                      //   // '',
-                      //   //   style: TextStyle(
-                      //   //     color: current ? Colors.white : Colors.black,
-                      //   //   ),
-                      //   // ),
-                      // ),
-                      // const Icon(
-                      //   Icons.done_all,
-                      //   color: Colors.white,
-                      //   size: 14,
-                      // )
-       //             ],
-                  ),
+                onPressed: (){boardServise.insertBoard(imageFiles);},
+                child: Text('완료',
+                  style: TextStyle(
+                      color: Colors.white, fontSize: 13),
                 ),
               ),
-              const SizedBox(
-                height: 2,
-              ),
-              Text(
-                "2:02",
-                style: TextStyle(
-                    fontSize: 12, color: Colors.black.withOpacity(0.5)),
-              )
-            ],
-          ),
-        ),
-        if (current) ...[
-          const SizedBox(width: 5.0),
-          CircleAvatar(
-            backgroundImage: NetworkImage(
-              logoUrl
-            ),
-            radius: 10.0,
+          ],
           ),
         ],
-        SizedBox(width: current ? 20.0 : 30.0),
-      ],
+        
+      ),
     );
   }
 }
 
-class Image_One {
-  final int imageNum;
-  final Image img;
-  final String  img64;
-
-  Image_One(this.imageNum, this.img,this.img64);
-}

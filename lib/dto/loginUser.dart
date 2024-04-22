@@ -18,7 +18,20 @@ class LoginUser {
     userName = json['userName'];
     userChurch = json['userChurch'];
   }
+
+  @override
+  String toString() {
+
+    userId = userId ==null?"값 없음":userId;
+    userPw = userPw ==null?"값 없음":userPw;
+    userName = userName ==null?"값 없음":userName;
+    userChurch = userChurch ==null?"값 없음":userChurch;
+
+    return "LoginUser [ userid : " + userId! +" / userPw : "+userPw! +" / userName : "+userName! +" / userChurch : "+userChurch!  ;
+  }
+
 }
+
 
 
  // LoginUser user = LoginUser.instance;
