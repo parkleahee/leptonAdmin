@@ -10,26 +10,34 @@ import '../dto/loginUser.dart';
 class BoardServise{
 
   String boardUrl="board/board.php";
-  Future<void>  insertBoard(List<ImgInfo> imgList) async {
+  Future<void>  insertBoard(String title, List<ImgInfo> imgList, String team, String dateTime,) async {
 
 
       String realUrl = apiUrl + boardUrl;
       List<Map<String, dynamic>> imgInfoListJson = imgList.map((imgInfo) => imgInfo.toJson()).toList();
       String imgListJsonStr = jsonEncode(imgInfoListJson);
-      print(imgListJsonStr);
+    //  print(imgListJsonStr);
       LoginUser loginUser = LoginUser.instance;
-      // final response =
-      // await http.post(Uri.parse(realUrl), headers: <String, String>{
-      //   "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-      // }, body: <String, String>{
-      //   "path": "insertBoard",
-      //   "userId": loginUser.userId!,
-      //   "imgList" : imgListJsonStr,
-      // });
-      // if (response.statusCode == 200) {
-      //   Map<String, dynamic> jsonData = jsonDecode(response.body);
-      //   loginUser.fromJson(jsonData);
-      // }
+      String? userId = loginUser.userId == null ? "" : loginUser.userId;
+      String? userName = loginUser.userName==null?"":loginUser.userName;
+      String? userChurch= loginUser.userChurch==null?"":loginUser.userChurch;
+      final response =
+      await http.post(Uri.parse(realUrl), headers: <String, String>{
+        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      }, body: <String, String>{
+        "path": "insertBoard",
+        "userId": userId!,
+        "userName" : userName!,
+        "userChurch":userChurch!,
+        "team" : team,
+        "title" : title,
+        "worshipDate" : dateTime,
+        "imgList" : imgListJsonStr,
+      });
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsonData = jsonDecode(response.body);
+        loginUser.fromJson(jsonData);
+      }
 
   }
 

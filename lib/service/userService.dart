@@ -33,8 +33,8 @@ Future<bool> login(String id, String pw) async {
     bool result = await jwtService.getJwt(id, pw).then((value)  {
       if (value) {
         storage.write(key: 'userId', value: loginUser.userId);
-      //  storage.write(key: 'userPw', value: loginUser.userPw);
-       // getTeam(user.userId);
+        storage.write(key: 'userPw', value: loginUser.userPw);
+       getTeam(loginUser.userId!);
         return true;
       }else{
         return false;
@@ -47,7 +47,7 @@ Future<bool> login(String id, String pw) async {
 }
 
 
-void getTeam(String userid) async {
+Future<void> getTeam(String userid) async {
   String realUrl = apiUrl + "user/user.php";
   //final response = await http.get(Uri.parse(realUrl),);
   LoginUser loginUser = LoginUser.instance;
@@ -59,12 +59,18 @@ void getTeam(String userid) async {
     "userId": userid,
   });
   if (response.statusCode == 200) {
-    List<String> jsonList = jsonDecode(response.body);
-    loginUser.team = jsonList;
+   // print(response.body);
+    List<dynamic> jsonData = json.decode(response.body);
+
+    List<String> teamNames = [];
+    for (var item in jsonData) {
+      teamNames.add(item['team']);
+    }
+    loginUser.team = teamNames;
   }
 }
 
-void getUserInfo(String userid, String token) async {
+Future<void> getUserInfo(String userid, String token) async {
   String realUrl = apiUrl + "user/user.php";
   //final response = await http.get(Uri.parse(realUrl),);
   LoginUser loginUser = LoginUser.instance;
@@ -79,6 +85,8 @@ void getUserInfo(String userid, String token) async {
   if (response.statusCode == 200) {
     Map<String, dynamic> jsonData = jsonDecode(response.body);
     loginUser.fromJson(jsonData);
+    await getTeam(userid);
+   // print(loginUser.team);
   }
 }
 

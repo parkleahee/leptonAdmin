@@ -14,6 +14,7 @@ class User_Main_Page extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print(LoginUser.instance.toString());
+    print(LoginUser.instance.team);
     var orangeTextStyle = const TextStyle(
       color: Colors.deepOrange,
     );

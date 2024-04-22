@@ -3,7 +3,9 @@
  * profile: https://github.com/lohanidamodar
  */
 import 'dart:convert';
+import 'dart:html' as html;
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
@@ -14,35 +16,18 @@ import '../../service/boardService.dart';
 
 BoardServise boardServise = BoardServise();
 LoginUser loginUser = LoginUser.instance;
-
+List<String>? teams = loginUser.team;
 class Make_Sheet extends StatefulWidget {
   @override
   _Make_SheetState createState() => _Make_SheetState();
 }
 
 class _Make_SheetState extends State<Make_Sheet> {
-//  List<Image> _imageFiles = [];
+
   List<ImgInfo> imageFiles = [];
-
-  bool imageTest(Uint8List header) {
-    const List<List<int>> signatures = [
-      [0xFF, 0xD8], // JPEG
-      [0x89, 0x50, 0x4E, 0x47], // PNG
-      [0x47, 0x49, 0x46], // GIF
-      [0x49, 0x49, 0x2A, 0x00], // TIFF
-      [0x42, 0x4D], // BMP
-    ];
-
-    for (final signature in signatures) {
-      if (header.length >= signature.length &&
-          header.sublist(0, signature.length).every((element) => element == signature[signature.indexOf(element)])) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
+  final _titleTextEditController = TextEditingController(); //텍스트 컨트롤러 - 타이틀용
+  DateTime? _selectdDate;
+  String _selectteam ="";
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -74,7 +59,7 @@ class _Make_SheetState extends State<Make_Sheet> {
 
       // 이미지 리스트에 추가
       setState(() {
-        imageFiles.add(ImgInfo(imageFiles.length+1,img64,img));
+        imageFiles.add(ImgInfo(imageFiles.length + 1, img64, img));
       });
     } catch (e, s) {
       // 파일을 읽는 도중 문제가 발생한 경우 처리
@@ -131,6 +116,72 @@ class _Make_SheetState extends State<Make_Sheet> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Container(
+            child: Row(
+              children: [
+                Expanded(
+                    flex: 7,
+                    child: TextFormField(
+                      controller: _titleTextEditController,
+                      decoration: const InputDecoration(
+                        labelText: '콘티제목 ex) 0000-00-00 000팀 콘티',
+                        hintText: '제목을 입력하세요',
+                        prefixIcon: Icon(Icons.title),
+                        border: OutlineInputBorder(),
+                      ),
+                    )
+                ),
+                Expanded(
+                  child: DropdownButton(
+                    value: _selectteam,
+                    items: teams!.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectteam = newValue!;
+                      });
+                    },
+                  ),
+                ),
+
+              ],
+            ),
+          ),
+          Container(
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 8,
+                  child: Text(
+                    _selectdDate == null ? "예배 날짜 선택" : _selectdDate.toString(),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton(
+                    child: Icon(Icons.date_range),
+                    onPressed: () {
+                      showDatePicker(context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2020),
+                        lastDate: (DateTime.now().add(Duration(
+                            days: 365 * 10))),).then((value) =>
+                      {
+                        setState(() {
+                          _selectdDate = value;
+                        })
+                      }
+                      );
+                    },
+                  )
+                  ,),
+              ],
+            ),
+          ),
           //이미지 리스트 표시
           Expanded(
             child: ListView.builder(
@@ -156,50 +207,56 @@ class _Make_SheetState extends State<Make_Sheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-              backgroundColor: Colors.blue, // 배경색
-              textStyle: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ), // 텍스트 스타일
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24), // 버튼 모양
-                side: BorderSide(color: Colors.grey), // 테두리 설정
-              ),
-              elevation: 8, // 그림자
-            ),
-            onPressed: _pickImage,
-            child: Text('이미지 추가',
-              style: TextStyle(
-                  color: Colors.white, fontSize: 13),
-            ),
-          ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                  backgroundColor: Colors.blueGrey, // 배경색
+                  backgroundColor: Colors.blue,
+                  // 배경색
                   textStyle: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                  ), // 텍스트 스타일
+                  ),
+                  // 텍스트 스타일
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24), // 버튼 모양
                     side: BorderSide(color: Colors.grey), // 테두리 설정
                   ),
                   elevation: 8, // 그림자
                 ),
-                onPressed: (){boardServise.insertBoard(imageFiles);},
+                onPressed: _pickImage,
+                child: Text('이미지 추가',
+                  style: TextStyle(
+                      color: Colors.white, fontSize: 13),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                  backgroundColor: Colors.blueGrey,
+                  // 배경색
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  // 텍스트 스타일
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24), // 버튼 모양
+                    side: BorderSide(color: Colors.grey), // 테두리 설정
+                  ),
+                  elevation: 8, // 그림자
+                ),
+                onPressed: () {
+                  boardServise.insertBoard(_titleTextEditController.text,imageFiles,_selectteam,_selectdDate.toString());
+                },
                 child: Text('완료',
                   style: TextStyle(
                       color: Colors.white, fontSize: 13),
                 ),
               ),
-          ],
+            ],
           ),
         ],
-        
+
       ),
     );
   }

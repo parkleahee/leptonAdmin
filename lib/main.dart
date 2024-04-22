@@ -16,7 +16,7 @@ void main() async {
     if (val != null&&id !=null) {
       bool result = await _jwtService.checkJwt(val);
       if(result){
-        _userService.getUserInfo(id!, val);
+        await _userService.getUserInfo(id!, val);
     //    runApp(Music_sheet_Board());
         runApp(MaterialApp(
           debugShowCheckedModeBanner: false,
