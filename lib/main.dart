@@ -10,6 +10,7 @@ import 'property.dart';
 UserService _userService = UserService();
 JwtService _jwtService = JwtService();
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   var id = await storage.read(key: "userId");
   await storage.read(key: "token").then((val) async {
     String token = val.toString();

@@ -1,6 +1,6 @@
 {
-    "name": "tms",
-    "short_name": "tms",
+    "name": "wms",
+    "short_name": "wms",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

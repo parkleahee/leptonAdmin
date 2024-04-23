@@ -10,7 +10,7 @@ import '../dto/loginUser.dart';
 class BoardServise{
 
   String boardUrl="board/board.php";
-  Future<void>  insertBoard(String title, List<ImgInfo> imgList, String team, String dateTime,) async {
+  Future<String>  insertBoard(String title, List<ImgInfo> imgList, String team, String dateTime,) async {
 
 
       String realUrl = apiUrl + boardUrl;
@@ -35,11 +35,15 @@ class BoardServise{
         "imgList" : imgListJsonStr,
       });
       print(response.body);
+      String result = "";
       if (response.statusCode == 200) {
   //      Map<String, dynamic> jsonData = jsonDecode(response.body);
         print(response.body);
-      }
 
+        result = await response.body;
+
+      }
+      return result;
   }
 
 

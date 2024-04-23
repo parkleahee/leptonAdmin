@@ -3,7 +3,6 @@
  * profile: https://github.com/lohanidamodar
  */
 import 'dart:convert';
-import 'dart:html' as html;
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +12,7 @@ import 'package:worshipsheet/dto/loginUser.dart';
 import 'package:worshipsheet/property.dart';
 
 import '../../service/boardService.dart';
+import 'board_list.dart';
 
 BoardServise boardServise = BoardServise();
 LoginUser loginUser = LoginUser.instance;
@@ -117,7 +117,7 @@ class _Make_SheetState extends State<Make_Sheet> {
 
   @override
   Widget build(BuildContext context) {
-
+    var chk ="123";
     return Scaffold(
       appBar: AppBar(
         title: Text('콘티 생성'),
@@ -125,6 +125,7 @@ class _Make_SheetState extends State<Make_Sheet> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Text(chk),
           Container(
             margin: EdgeInsets.symmetric(vertical: 10.0),
             child: Row(
@@ -189,7 +190,7 @@ class _Make_SheetState extends State<Make_Sheet> {
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: ElevatedButton.icon(
                       icon: Icon(Icons.date_range),
-                      label: Text("날짜 선택"),
+                      label: Text(""),
                       onPressed: () {
                         showDatePicker(
                           context: context,
@@ -275,8 +276,18 @@ class _Make_SheetState extends State<Make_Sheet> {
                   ),
                   elevation: 8, // 그림자
                 ),
-                onPressed: () {
-                  boardServise.insertBoard(_titleTextEditController.text,imageFiles,_selectteam,_selectdDate.toString());
+                onPressed: () async {
+                  String result = await boardServise.insertBoard(_titleTextEditController.text,imageFiles,_selectteam,_selectdDate.toString());
+
+                  print(result);
+                  setState(() {
+                    chk = result;
+                  });
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Music_sheet_Board()),
+                  );
                 },
                 child: Text('완료',
                   style: TextStyle(

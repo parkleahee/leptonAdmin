@@ -205,7 +205,7 @@ class _Sheet_ViewState extends State<Sheet_View> {
             options: CarouselOptions(
               //autoPlay: true,
               viewportFraction : 1,
-              height: MediaQuery.of(context).size.height-AppBar().preferredSize.height,
+              height: MediaQuery.of(context).size.height-AppBar().preferredSize.height*2,
               enlargeCenterPage: true,
             ),
             items: _posts.map((post) {

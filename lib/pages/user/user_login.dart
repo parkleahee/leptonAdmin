@@ -106,6 +106,7 @@ class __FormContentState extends State<_FormContent> {
 
   @override
   Widget build(BuildContext context) {
+    var titlestr = '예배 콘티 관리 1.0';
     var id = "";
     var pw = "";
     return Container(
@@ -116,12 +117,12 @@ class __FormContentState extends State<_FormContent> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(titlestr),
             TextFormField(
               controller: _idTextEditController,
-              // onChanged: (text) {
-              //   id = text;
-              //   print(id + "55");
-              // },
+               onChanged: (text) {
+                 id = text;
+               },
               validator: (value) {
                 // add email validation
                 if (value == null || value.isEmpty) {
@@ -134,7 +135,7 @@ class __FormContentState extends State<_FormContent> {
                 //         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                 //     .hasMatch(value);
                 // if (!emailValid) {
-                //   return 'Please enter a valid email';
+                   return 'Please enter a valid email';
                 // }
                 return null;
               },
@@ -208,6 +209,9 @@ class __FormContentState extends State<_FormContent> {
                     ),
                   ),
                   onPressed: () async {
+                    setState(() {
+                      var titlestr = '예배 콘티 관리 v1.2';
+                    });
                     _userService.login(
                         _idTextEditController.text, _pwTextEditController.text).then((value) {
                       print('로그인 성공'+value.toString());
