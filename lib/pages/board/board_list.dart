@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:worshipsheet/pages/board/sheet_view.dart';
 import 'package:worshipsheet/property.dart';
 import 'dart:convert';
 
@@ -189,7 +190,16 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
   }
 
   Widget buildList(BuildContext context, int index) {
-    return Container(
+    return InkWell(
+        onTap: () {
+     print( _posts[index]['boardNum']);
+     Navigator.push(
+       context,
+       MaterialPageRoute(builder: (context) => Sheet_View(_posts[index]['boardNum'],_posts[index]['boardName'],_posts[index]['team'])),
+     );
+    },
+    child:
+      Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
         color: Colors.white,
@@ -285,6 +295,7 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
           ),
         ],
       ),
+    ),
     );
   }
 }

@@ -16,7 +16,8 @@ import '../../service/boardService.dart';
 
 BoardServise boardServise = BoardServise();
 LoginUser loginUser = LoginUser.instance;
-List<String>? teams = loginUser.team;
+List<String> teams = loginUser.team;
+List<String> test = ['','test1','test2'];
 class Make_Sheet extends StatefulWidget {
   @override
   _Make_SheetState createState() => _Make_SheetState();
@@ -26,8 +27,15 @@ class _Make_SheetState extends State<Make_Sheet> {
 
   List<ImgInfo> imageFiles = [];
   final _titleTextEditController = TextEditingController(); //텍스트 컨트롤러 - 타이틀용
-  DateTime? _selectdDate;
+  String? _selectdDate;
   String _selectteam ="";
+
+  List<String> dropdownList(
+      List<String> list
+      ){
+    if(!list.contains("미선택"))  list.add("미선택");
+    return list;
+  }
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -109,6 +117,7 @@ class _Make_SheetState extends State<Make_Sheet> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text('콘티 생성'),
@@ -117,71 +126,92 @@ class _Make_SheetState extends State<Make_Sheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
+            margin: EdgeInsets.symmetric(vertical: 10.0),
             child: Row(
               children: [
                 Expanded(
-                    flex: 7,
+                  flex: 7,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: TextFormField(
                       controller: _titleTextEditController,
-                      decoration: const InputDecoration(
-                        labelText: '콘티제목 ex) 0000-00-00 000팀 콘티',
+                      decoration: InputDecoration(
+                        labelText: '콘티 제목 ex) 0000-00-00 000팀 콘티',
                         hintText: '제목을 입력하세요',
                         prefixIcon: Icon(Icons.title),
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
-                    )
-                ),
-                Expanded(
-                  child: DropdownButton(
-                    value: _selectteam,
-                    items: teams!.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectteam = newValue!;
-                      });
-                    },
+                    ),
                   ),
                 ),
-
+                Expanded(
+                flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: DropdownButton(
+                      value: _selectteam == "" ? "미선택" : _selectteam,
+                      items: dropdownList(teams).map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectteam = value!;
+                        });
+                      },
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
           Container(
+            margin: EdgeInsets.symmetric(vertical: 10.0),
             child: Row(
               children: [
                 Expanded(
-                  flex: 8,
-                  child: Text(
-                    _selectdDate == null ? "예배 날짜 선택" : _selectdDate.toString(),
+                  flex: 7,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      textAlign: TextAlign.center,
+                      _selectdDate == null ? "예배 날짜 선택" : _selectdDate.toString(),
+                    ),
                   ),
                 ),
                 Expanded(
-                  flex: 2,
-                  child: ElevatedButton(
-                    child: Icon(Icons.date_range),
-                    onPressed: () {
-                      showDatePicker(context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2020),
-                        lastDate: (DateTime.now().add(Duration(
-                            days: 365 * 10))),).then((value) =>
-                      {
-                        setState(() {
-                          _selectdDate = value;
-                        })
-                      }
-                      );
-                    },
-                  )
-                  ,),
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: ElevatedButton.icon(
+                      icon: Icon(Icons.date_range),
+                      label: Text("날짜 선택"),
+                      onPressed: () {
+                        showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: (DateTime.now().add(Duration(days: 365 * 10))),
+                        ).then((value) {
+                          setState(() {
+                            if (value != null) {
+                              String formattedDate = value.toString().substring(0, 10); // yyyy-MM-dd 형식의 날짜 문자열
+                              _selectdDate = formattedDate;
+                            }
+                          });
+                        });
+                      },
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
+
           //이미지 리스트 표시
           Expanded(
             child: ListView.builder(

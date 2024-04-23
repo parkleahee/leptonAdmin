@@ -34,9 +34,10 @@ class BoardServise{
         "worshipDate" : dateTime,
         "imgList" : imgListJsonStr,
       });
+      print(response.body);
       if (response.statusCode == 200) {
-        Map<String, dynamic> jsonData = jsonDecode(response.body);
-        loginUser.fromJson(jsonData);
+  //      Map<String, dynamic> jsonData = jsonDecode(response.body);
+        print(response.body);
       }
 
   }

@@ -4,7 +4,7 @@ class LoginUser {
   String? userPw;
   String? userName;
   String? userChurch;
-  List<String>? team;
+  List<String> team = [];
 
   // 내부 생성자
   LoginUser._internal();

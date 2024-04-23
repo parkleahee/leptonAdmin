@@ -30,11 +30,12 @@ Future<bool> login(String id, String pw) async {
     //   List<dynamic> jsonList = jsonDecode(response.body);
     Map<String, dynamic> jsonData = jsonDecode(response.body);
     loginUser.fromJson(jsonData);
-    bool result = await jwtService.getJwt(id, pw).then((value)  {
+    bool result = await jwtService.getJwt(id, pw).then((value)  async {
       if (value) {
         storage.write(key: 'userId', value: loginUser.userId);
         storage.write(key: 'userPw', value: loginUser.userPw);
-       getTeam(loginUser.userId!);
+        await  getTeam(loginUser.userId!);
+
         return true;
       }else{
         return false;
