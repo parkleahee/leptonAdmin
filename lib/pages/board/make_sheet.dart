@@ -24,7 +24,7 @@ class Make_Sheet extends StatefulWidget {
 }
 
 class _Make_SheetState extends State<Make_Sheet> {
-
+  bool _isLoading = false;
   List<ImgInfo> imageFiles = [];
   final _titleTextEditController = TextEditingController(); //텍스트 컨트롤러 - 타이틀용
   String? _selectdDate;
@@ -37,38 +37,64 @@ class _Make_SheetState extends State<Make_Sheet> {
     return list;
   }
 
+  // Future<void> _pickImage() async {
+  //   final ImagePicker picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery,imageQuality: 50);
+  //
+  //   if (pickedFile == null) return;
+  //
+  //   try {
+  //     Uint8List bytes;
+  //     // 파일 경로의 파일을 바이트 배열로 읽어옴
+  //     if (pickedFile is File) {
+  //       bytes = await pickedFile.readAsBytes();
+  //     } else {
+  //       bytes = await pickedFile.readAsBytes();
+  //     }
+  //
+  //     //final imgCheck = await imageTest(bytes);
+  //     // if (!imgCheck) {
+  //     //   // 유효한 이미지가 아닌 경우 처리
+  //     //   print('유효한 이미지가 아닙니다.');
+  //     //   return;
+  //     // }
+  //
+  //     // 읽은 바이트 배열을 Base64로 인코딩
+  //     String img64 = base64Encode(bytes);
+  //
+  //     // Base64로 인코딩된 이미지를 이미지로 변환
+  //     Image img = Image.memory(base64Decode(img64));
+  //
+  //     // 이미지 리스트에 추가
+  //     setState(() {
+  //       imageFiles.add(ImgInfo(imageFiles.length + 1, img64, img));
+  //     });
+  //   } catch (e, s) {
+  //     // 파일을 읽는 도중 문제가 발생한 경우 처리
+  //     print('파일을 읽는 도중 문제가 발생했습니다: $e');
+  //     print('Stack trace: ${s}');
+  //   }
+  // }
+
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final List<XFile>? pickedFiles = await picker.pickMultiImage(
+      //source: ImageSource.gallery,
+      imageQuality: 70,
+    );
 
-    if (pickedFile == null) return;
+    if (pickedFiles == null || pickedFiles.isEmpty) return;
 
     try {
-      Uint8List bytes;
-      // 파일 경로의 파일을 바이트 배열로 읽어옴
-      if (pickedFile is File) {
-        bytes = await pickedFile.readAsBytes();
-      } else {
-        bytes = await pickedFile.readAsBytes();
+      for (XFile pickedFile in pickedFiles) {
+        Uint8List bytes = await pickedFile.readAsBytes();
+        String img64 = base64Encode(bytes);
+        Image img = Image.memory(base64Decode(img64));
+
+        setState(() {
+          imageFiles.add(ImgInfo(imageFiles.length + 1, img64, img));
+        });
       }
-
-      //final imgCheck = await imageTest(bytes);
-      // if (!imgCheck) {
-      //   // 유효한 이미지가 아닌 경우 처리
-      //   print('유효한 이미지가 아닙니다.');
-      //   return;
-      // }
-
-      // 읽은 바이트 배열을 Base64로 인코딩
-      String img64 = base64Encode(bytes);
-
-      // Base64로 인코딩된 이미지를 이미지로 변환
-      Image img = Image.memory(base64Decode(img64));
-
-      // 이미지 리스트에 추가
-      setState(() {
-        imageFiles.add(ImgInfo(imageFiles.length + 1, img64, img));
-      });
     } catch (e, s) {
       // 파일을 읽는 도중 문제가 발생한 경우 처리
       print('파일을 읽는 도중 문제가 발생했습니다: $e');
@@ -117,15 +143,24 @@ class _Make_SheetState extends State<Make_Sheet> {
 
   @override
   Widget build(BuildContext context) {
-    var chk ="123";
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('콘티 생성'),
+        iconTheme: IconThemeData(
+          color: Colors.black, // 아이콘 색상 변경
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), // 뒤로가기 버튼 아이콘
+          onPressed: () {
+            Navigator.of(context).pop(); // 뒤로가기 기능
+          },
+        ),
+        title: Text("새로운 콘티"),
+        centerTitle: true,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(chk),
           Container(
             margin: EdgeInsets.symmetric(vertical: 10.0),
             child: Row(
@@ -190,7 +225,7 @@ class _Make_SheetState extends State<Make_Sheet> {
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: ElevatedButton.icon(
                       icon: Icon(Icons.date_range),
-                      label: Text(""),
+                      label: Text("날짜 선택"),
                       onPressed: () {
                         showDatePicker(
                           context: context,
@@ -277,17 +312,22 @@ class _Make_SheetState extends State<Make_Sheet> {
                   elevation: 8, // 그림자
                 ),
                 onPressed: () async {
-                  String result = await boardServise.insertBoard(_titleTextEditController.text,imageFiles,_selectteam,_selectdDate.toString());
-
-                  print(result);
                   setState(() {
-                    chk = result;
+                    _isLoading = true;
                   });
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Music_sheet_Board()),
-                  );
+                  String flag = await boardServise.insertBoard(_titleTextEditController.text,imageFiles,_selectteam,_selectdDate.toString());
+                  setState(() {
+                    _isLoading = false;
+                  });
+                  if(flag=="true") {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Music_sheet_Board()),
+                    );
+                  }else{
+                    _alertE(flag);
+                  }
                 },
                 child: Text('완료',
                   style: TextStyle(
@@ -299,6 +339,32 @@ class _Make_SheetState extends State<Make_Sheet> {
         ],
 
       ),
+    );
+  }
+  Future<void> _alertE(String str) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('업로드 실패'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(str),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -61,7 +61,7 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
       "page": _page.toString(),
     });
     if (response.statusCode == 200) {
-    //  print(response.body);
+      print(response.body);
       List<dynamic> newPosts = json.decode(response.body);
       setState(() {
         _posts.addAll(newPosts);

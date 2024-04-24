@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:worshipsheet/dto/loginUser.dart';
+import 'package:worshipsheet/pages/board/sheet_view_slider.dart';
 import 'package:worshipsheet/property.dart';
 import 'dart:convert';
 
@@ -21,6 +22,7 @@ class Sheet_View extends StatefulWidget {
 
 class _Sheet_ViewState extends State<Sheet_View> {
   List<dynamic> _posts = [];
+  List<String> imgList = [];
   int _page = 1;
   final int _limit = 10;
   final ScrollController _scrollController = ScrollController();
@@ -66,6 +68,9 @@ class _Sheet_ViewState extends State<Sheet_View> {
     if(!loginUser.team.contains(widget.team)){
       return;
     }
+    print("--------페이지뷰 로드");
+    print( _page.toString());
+    print(  widget.boardNum.toString());
     String realUrl = apiUrl + "board/board.php";
     final response =
     await http.post(Uri.parse(realUrl), headers: <String, String>{
@@ -118,15 +123,13 @@ class _Sheet_ViewState extends State<Sheet_View> {
         body:
             Container(
               width: double.infinity, // 화면의 가로 크기에 맞게 설정
-              height: double.infinity, // 화면의 세로 크기에 맞게 설정
+        //      height: double.infinity, // 화면의 세로 크기에 맞게 설정
         child: Column(
           mainAxisAlignment: _silderView? MainAxisAlignment.center : MainAxisAlignment.start,
           crossAxisAlignment: _silderView? CrossAxisAlignment.center : CrossAxisAlignment.start,
           children: [
             // 상단 검색 및 헤더 부분
-        Visibility(
-              visible: _listView,
-            child:  Expanded(
+         Expanded(
               child: ListView.builder(
                 controller: _scrollController,
                 itemCount: _posts.length + 1,
@@ -146,14 +149,8 @@ class _Sheet_ViewState extends State<Sheet_View> {
                // const Divider(),
               ),
             ),
-            ),
 
-        Visibility(
-          visible: _silderView,
-          child: Center(
-          child:  sliderWidget(),
-          ),
-        ),
+
 
           ],
         ),
@@ -163,11 +160,14 @@ class _Sheet_ViewState extends State<Sheet_View> {
   }
 
   Widget buildList(BuildContext context, int index) {
+    imgList.add(_posts[index]['content']);
     return InkWell(
       onTap: () {
         setState(() {
-           _listView = false;
-           _silderView = true;
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Sheet_View_Slider(imgList)),
+          );
         });
       },
       child:  Container(
@@ -190,43 +190,7 @@ class _Sheet_ViewState extends State<Sheet_View> {
     child: Image.asset(path, fit: BoxFit.cover),
   );
 
-  Widget sliderWidget() {
-    return
-      Expanded(
-        child : InkWell(
-          onTap: (){
-            setState(() {
-              _listView = true;
-              _silderView = false;
-            });
-          },
-          child:
-          CarouselSlider(
-            options: CarouselOptions(
-              //autoPlay: true,
-              viewportFraction : 1,
-              height: MediaQuery.of(context).size.height-AppBar().preferredSize.height*2,
-              enlargeCenterPage: true,
-            ),
-            items: _posts.map((post) {
-              String img64 = post['content']; // 예시: JSON 데이터에서 이미지 URL을 가져옴
-              return Builder(
-                builder: (BuildContext context) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    //margin: EdgeInsets.symmetric(horizontal: 5.0),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                    ),
-                    child: Image.memory(base64Decode(img64), fit: BoxFit.contain,),
-                  );
-                },
-              );
-            }).toList(),
-          ),
-        ),
-      );
-  }
+
 
 
 

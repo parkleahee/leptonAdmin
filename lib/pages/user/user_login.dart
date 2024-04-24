@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:worshipsheet/pages/user/user_main.dart';
@@ -56,7 +58,8 @@ class _Logo extends StatelessWidget {
         Container(
           width: 300,
           height: 300,
-          child: Image.network(logoUrl),
+          //child: Image.network(logoUrl),
+          child: Image.memory(base64Decode(logoImg)),
           //Image.asset("myassets/image/Tlogo.png",fit: BoxFit.contain,),
         ),
 

@@ -67,7 +67,7 @@ class User_Main_Page extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         children: <Widget>[
           Text(
-            "Wiki Lists",
+            loginUser.userName.toString()+"님",
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: Colors.black,
