@@ -82,7 +82,18 @@ class BoardServise{
     return result;
   }
 
+  Future<void> deleteBoard(int boardNum) async {
+  String realUrl = apiUrl + boardUrl;
+    final response =
+        await http.post(Uri.parse(realUrl), headers: <String, String>{
+    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    }, body: <String, String>{
+    "path": "deleteBoard",
+    "boardNum": boardNum.toString(),
 
+    });
+  print(response.body);
+  }
 }
 
 class ImgInfo{

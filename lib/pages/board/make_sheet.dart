@@ -315,6 +315,11 @@ class _Make_SheetState extends State<Make_Sheet> {
                   setState(() {
                     _isLoading = true;
                   });
+                  _isLoading
+                      ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                      : Container();
                   String flag = await boardServise.insertBoard(_titleTextEditController.text,imageFiles,_selectteam,_selectdDate.toString());
                   setState(() {
                     _isLoading = false;

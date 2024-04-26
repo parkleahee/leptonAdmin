@@ -91,6 +91,9 @@ Future<void> getUserInfo(String userid, String token) async {
   }
 }
 
+Future<void> userJoin(Map<String, String> formData)async {
+
+}
 
 
 }//클래스 end

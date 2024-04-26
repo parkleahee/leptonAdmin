@@ -205,13 +205,12 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
         color: Colors.white,
       ),
       width: double.infinity,
-      height: 110,
+      height: 120,
       margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 이미지
           Container(
             width: 50,
             height: 50,
@@ -224,7 +223,7 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
             child: Icon(
               Icons.task,
               color: Colors.blue,
-              size: 20,
+              size: 18,
             ),
           ),
           // 텍스트 정보
@@ -240,24 +239,39 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
                     fontSize: 18,
                   ),
                 ),
-                SizedBox(height: 6),
+                SizedBox(height: 3),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      Icons.edit,
-                      color: Colors.grey,
-                      size: 20,
+                    Container(
+                        child:  Row(
+                            children: [
+                              Icon(
+                                Icons.edit,
+                                color: Colors.grey,
+                                size: 18,
+                              ),
+                              SizedBox(width: 5),
+                              Text(
+                                _posts[index]['writer'] ?? '',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ]
+                        )
                     ),
-                    SizedBox(width: 5),
-                    Text(
-                      _posts[index]['writer'] ?? '',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 15,
-                      ),
-                    ),
+                    _posts[index]['writerId']==loginUser.userId?
+                    IconButton(onPressed: () async {
+                      await boardServise.deleteBoard( _posts[index]['boardNum']);
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => Music_sheet_Board()));
+                    }, icon: Icon(Icons.delete ,  color: Colors.red,
+                      size: 18, semanticLabel: "삭제",)) :
+                    Container(),
                   ],
                 ),
+
                 SizedBox(height: 6),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -268,7 +282,7 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
                     Icon(
                       Icons.diversity_1,
                       color: Colors.grey,
-                      size: 20,
+                      size: 18,
                     ),
                     SizedBox(width: 5),
                     Text(

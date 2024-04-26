@@ -10,8 +10,8 @@ import 'package:worshipsheet/property.dart';
 
 UserService _userService = UserService();
 
-class SignInPage2 extends StatelessWidget {
-  const SignInPage2({Key? key}) : super(key: key);
+class ChurchSignInPage extends StatelessWidget {
+  const ChurchSignInPage({Key? key}) : super(key: key);
 
 
 
@@ -124,9 +124,9 @@ class __FormContentState extends State<_FormContent> {
             Text(titlestr),
             TextFormField(
               controller: _idTextEditController,
-               onChanged: (text) {
-                 id = text;
-               },
+              onChanged: (text) {
+                id = text;
+              },
               validator: (value) {
                 // add email validation
                 if (value == null || value.isEmpty) {
@@ -139,7 +139,7 @@ class __FormContentState extends State<_FormContent> {
                 //         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                 //     .hasMatch(value);
                 // if (!emailValid) {
-                   return 'Please enter a valid email';
+                return 'Please enter a valid email';
                 // }
                 return null;
               },
@@ -234,14 +234,15 @@ class __FormContentState extends State<_FormContent> {
                     setState(() {
                       var titlestr = '예배 콘티 관리 v1.2';
                     });
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SignInPage()),
-                        );
-                        print('check');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignInPage()),
+                    );
+                    print('check');
+
+
                   }),
             ),
-
           ],
         ),
       ),
