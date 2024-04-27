@@ -38,18 +38,18 @@ class BoardServise{
     String result = "";
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonData = jsonDecode(response.body);
-       print("--------데이터-----------");
+      print("--------데이터-----------");
       // print(response.body);
-       print(imgList.length);
+      print(imgList.length);
       print("-------------------");
       result = jsonData["boardNum"].toString();
 
       for(int i = 0; i < imgList.length; i++){
-       flag += await insertBoardContent(imgList[i], result);
+        flag += await insertBoardContent(imgList[i], result);
         flag += " / ";
       }
     }
- //   return flag;
+    //   return flag;
     return "true";
   }
 
@@ -83,16 +83,16 @@ class BoardServise{
   }
 
   Future<void> deleteBoard(int boardNum) async {
-  String realUrl = apiUrl + boardUrl;
+    String realUrl = apiUrl + boardUrl;
     final response =
-        await http.post(Uri.parse(realUrl), headers: <String, String>{
-    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    await http.post(Uri.parse(realUrl), headers: <String, String>{
+      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
     }, body: <String, String>{
-    "path": "deleteBoard",
-    "boardNum": boardNum.toString(),
+      "path": "deleteBoard",
+      "boardNum": boardNum.toString(),
 
     });
-  print(response.body);
+    print(response.body);
   }
 }
 

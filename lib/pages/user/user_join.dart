@@ -374,7 +374,12 @@ class __SignUpFormState extends State<_SignUpForm> {
         return AlertDialog(
           title: Text('검색 결과'),
           content: SingleChildScrollView(
-            child: Column(
+            child:
+            Container(
+              width: 400,
+              height: MediaQuery.of(context).size.height/2,
+            child:
+            Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
@@ -396,8 +401,10 @@ class __SignUpFormState extends State<_SignUpForm> {
                       },
                       child: Text("검색"),
                     ),
+
                   ],
                 ),
+            _gap(),
                 Visibility(
                   visible: _churchSearch,
                   child: Column(
@@ -417,12 +424,14 @@ class __SignUpFormState extends State<_SignUpForm> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              _loadMoreData();
+                              // 교회 등록 메소드
+                              _churchSearch = false;
                             },
                             child: Text("등록"),
                           ),
                         ],
                       ),
+                      _gap(),
                       TextFormField(
                         controller:  _churchSearchTextEditController,
                         decoration: const InputDecoration(
@@ -455,18 +464,30 @@ class __SignUpFormState extends State<_SignUpForm> {
           ),
         ],
           ),
+            ),
         ),
           actions: [
             TextButton(
-              child: Text('교회 등록'),
+              child: Text('신규 교회 등록'),
               onPressed: () {
                 setState(() {
-                  _churchSearch = true;
+                 _churchSearch = true;
+                 Navigator.of(context).pop();
+                 _alertE();
+                });
+              },
+            ),TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                setState(() {
+
+            //      _churchSearch = true;
                 });
               },
             ),
             TextButton(
               onPressed: () {
+                _churchSearch = false;
                 Navigator.of(context).pop(); // AlertDialog를 닫음
               },
               child: Text('취소'),
