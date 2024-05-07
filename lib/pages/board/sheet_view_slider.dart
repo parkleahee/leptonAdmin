@@ -27,6 +27,7 @@ class _Sheet_View_SliderState extends State<Sheet_View_Slider> {
   bool _hasMore = true;
   bool _listView = true;
   bool _silderView = false;
+  double _imageScale = 1.0;
 
 
 
@@ -57,31 +58,36 @@ class _Sheet_View_SliderState extends State<Sheet_View_Slider> {
   );
 
   Widget sliderWidget() {
-    return
-      InkWell(
-        onTap: () {
-          setState(() {
-            Navigator.of(context).pop(); // 뒤로가기 기능
-          });
-        },
-        child: CarouselSlider(
-          options: CarouselOptions(
-            //autoPlay: true,
-            viewportFraction: 1,
-            height: MediaQuery.of(context).size.height,
-            enlargeCenterPage: true,
-          ),
-          items: widget.imgList.map((img) {
-            return Builder(
-              builder: (BuildContext context) {
-                return Image.memory(base64Decode(img), fit: BoxFit.contain);
+    return CarouselSlider(
+      options: CarouselOptions(
+        viewportFraction: 1,
+        height: MediaQuery.of(context).size.height,
+        enlargeCenterPage: true,
+      ),
+      items: widget.imgList.map((img) {
+        return Builder(
+          builder: (BuildContext context) {
+            return GestureDetector(
+              onScaleUpdate: (ScaleUpdateDetails details) {
+                setState(() {
+                  _imageScale = details.scale;
+                });
               },
+              onDoubleTap: () {
+                setState(() {
+                  _imageScale = (_imageScale == 1.0) ? 2.0 : 1.0;
+                });
+              },
+              child: Transform.scale(
+                scale: _imageScale,
+                child: Image.memory(base64Decode(img), fit: BoxFit.contain),
+              ),
             );
-          }).toList(),
-        ),
-      );
+          },
+        );
+      }).toList(),
+    );
   }
-
 
 
 
