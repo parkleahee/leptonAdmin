@@ -16,6 +16,8 @@ Future<bool> login(String id, String pw) async {
   /// do something
   String realUrl = apiUrl + "user/user.php";
   //final response = await http.get(Uri.parse(realUrl),);
+  print(id);
+  print(pw);
   final response =
   await http.post(Uri.parse(realUrl), headers: <String, String>{
     "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -34,7 +36,6 @@ Future<bool> login(String id, String pw) async {
       if (value) {
         storage.write(key: 'userId', value: loginUser.userId);
         storage.write(key: 'userPw', value: loginUser.userPw);
-        await  getTeam(loginUser.userId!);
 
         return true;
       }else{
@@ -48,28 +49,6 @@ Future<bool> login(String id, String pw) async {
 }
 
 
-Future<void> getTeam(String userid) async {
-  String realUrl = apiUrl + "user/user.php";
-  //final response = await http.get(Uri.parse(realUrl),);
-  LoginUser loginUser = LoginUser.instance;
-  final response =
-  await http.post(Uri.parse(realUrl), headers: <String, String>{
-    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-  }, body: <String, String>{
-    "path": "getTeam",
-    "userId": userid,
-  });
-  if (response.statusCode == 200) {
-   // print(response.body);
-    List<dynamic> jsonData = json.decode(response.body);
-
-    List<String> teamNames = [];
-    for (var item in jsonData) {
-      teamNames.add(item['team']);
-    }
-    loginUser.team = teamNames;
-  }
-}
 
 Future<void> getUserInfo(String userid, String token) async {
   String realUrl = apiUrl + "user/user.php";
@@ -86,13 +65,58 @@ Future<void> getUserInfo(String userid, String token) async {
   if (response.statusCode == 200) {
     Map<String, dynamic> jsonData = jsonDecode(response.body);
     loginUser.fromJson(jsonData);
-    await getTeam(userid);
    // print(loginUser.team);
   }
 }
 
 Future<void> userJoin(Map<String, String> formData)async {
 
+}
+
+Future<int> getUserTalent(String userid) async {
+  String realUrl = apiUrl + "user/user.php";
+  //final response = await http.get(Uri.parse(realUrl),);
+  print("잔액");
+  LoginUser loginUser = LoginUser.instance;
+  final response =
+  await http.post(Uri.parse(realUrl), headers: <String, String>{
+    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+  }, body: <String, String>{
+    "path": "getUserTelent",
+    "userId": userid,
+  });
+  if (response.statusCode == 200) {
+    // JSON 데이터에서 탤런트 값을 파싱
+    var data = json.decode(response.body);
+    // 'talent'는 서버 응답의 JSON 키입니다. 실제 키로 교체해야 합니다.
+    int talent = data['talent'] ?? 0; // 서버에서 'talent' 키에 해당하는 값이 없는 경우 0으로 처리
+    return talent;
+  } else {
+    throw Exception('Failed to load user talent');
+  }
+}
+
+Future<List> getUseList(String userid) async {
+  String realUrl = apiUrl + "user/user.php";
+  //final response = await http.get(Uri.parse(realUrl),);
+  print("잔액");
+  LoginUser loginUser = LoginUser.instance;
+  final response =
+  await http.post(Uri.parse(realUrl), headers: <String, String>{
+    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+  }, body: <String, String>{
+    "path": "getUseList",
+    "userId": userid,
+  });
+  if (response.statusCode == 200) {
+    // JSON 데이터에서 탤런트 값을 파싱
+    var data = json.decode(response.body);
+    // 'talent'는 서버 응답의 JSON 키입니다. 실제 키로 교체해야 합니다.
+    List<dynamic> useList = json.decode(response.body);
+    return useList;
+  } else {
+    throw Exception('Failed to load user talent');
+  }
 }
 
 

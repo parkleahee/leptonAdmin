@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:worshipsheet/pages/board/sheet_view.dart';
 import 'package:worshipsheet/property.dart';
 import 'dart:convert';
 
-import 'make_sheet.dart';
 
 class Music_sheet_Board extends StatefulWidget {
   @override
@@ -88,10 +86,7 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         floatingActionButton: FloatingActionButton(onPressed: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Make_Sheet()),
-          );
+
         },//플로팅버튼
           backgroundColor: Colors.cyan,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(35)),
@@ -193,10 +188,7 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
     return InkWell(
         onTap: () {
      print( _posts[index]['boardNum']);
-     Navigator.push(
-       context,
-       MaterialPageRoute(builder: (context) => Sheet_View(_posts[index]['boardNum'],_posts[index]['boardName'],_posts[index]['team'])),
-     );
+
     },
     child:
       Container(
@@ -262,12 +254,7 @@ class _Music_sheet_BoardState extends State<Music_sheet_Board> {
                             ]
                         )
                     ),
-                    _posts[index]['writerId']==loginUser.userId?
-                    IconButton(onPressed: () async {
-                      await boardServise.deleteBoard( _posts[index]['boardNum']);
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => Music_sheet_Board()));
-                    }, icon: Icon(Icons.delete ,  color: Colors.red,
-                      size: 18, semanticLabel: "삭제",)) :
+
                     Container(),
                   ],
                 ),

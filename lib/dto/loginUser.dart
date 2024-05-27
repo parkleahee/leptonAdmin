@@ -4,7 +4,7 @@ class LoginUser {
   String? userPw;
   String? userName;
   String? userChurch;
-  List<String> team = [];
+  int? talent;
 
   // 내부 생성자
   LoginUser._internal();
@@ -17,6 +17,15 @@ class LoginUser {
     userPw = json['userPw'];
     userName = json['userName'];
     userChurch = json['userChurch'];
+    talent = json['talent'];
+  }
+
+  Map<String, dynamic> getQrMap () {
+        Map<String, dynamic> qrMap = {
+        'userId' : userId,
+        'church' : userChurch,
+      };
+        return qrMap;
   }
 
   @override
