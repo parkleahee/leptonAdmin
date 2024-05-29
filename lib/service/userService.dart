@@ -70,7 +70,25 @@ Future<void> getUserInfo(String userid, String token) async {
 }
 
 Future<void> userJoin(Map<String, String> formData)async {
+  String realUrl = apiUrl + "user/user.php";
+  //final response = await http.get(Uri.parse(realUrl),);
+  LoginUser loginUser = LoginUser.instance;
+  final response =
+  await http.post(Uri.parse(realUrl), headers: <String, String>{
+    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+  }, body: <String, String>{
+    "path": "userJoin",
+    "userId": formData['id']!,
+    "userPw" :  formData['pw']!
+  });
+  if (response.statusCode == 200) {
+    // JSON 데이터에서 탤런트 값을 파싱
+    var data = json.decode(response.body);
+    // 'talent'는 서버 응답의 JSON 키입니다. 실제 키로 교체해야 합니다.
 
+  } else {
+    throw Exception('Failed to load user talent');
+  }
 }
 
 Future<int> getUserTalent(String userid) async {
