@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:worshipsheet/pages/user/user_login.dart';
 import 'package:worshipsheet/pages/user/user_main.dart';
 import 'package:worshipsheet/service/userService.dart';
 import 'package:worshipsheet/property.dart';
@@ -100,6 +101,7 @@ class __SignUpFormState extends State<_SignUpForm> {
   String _churchName = "클릭하여 교회 검색";
   String _churchNum = "";
   String _gender = '';
+  bool checkId = false;
   int _page = 1;
   int _page2 = 1;
   List<dynamic> _posts = []; //검색한 교회 목록
@@ -123,6 +125,12 @@ class __SignUpFormState extends State<_SignUpForm> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _idTextEditController.addListener(_printLatestValue);
+  }
+
+  void _printLatestValue() {
+    checkId = false;
+    // 여기에 추가적으로 필요한 로직을 구현할 수 있습니다.
   }
 
   void _onScroll() {
@@ -207,7 +215,57 @@ class __SignUpFormState extends State<_SignUpForm> {
     _hasMore = newPosts.isNotEmpty && newPosts.length == 30;
   }
 
+  Future<void> checkDupId(BuildContext context, String userId) async {
+    String realUrl = apiUrl + "user/user.php";
+    final response = await http.post(
+      Uri.parse(realUrl),
+      headers: <String, String>{
+        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      },
+      body: {
+        "path": "checkId",
+        "userId": userId,
+      },
+    );
 
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      print(response.body);  // For debugging purposes
+
+      String message = data["checkId"] == 0 ? "사용가능한 아이디입니다." : "중복된 아이디입니다.";
+      checkId = data["checkId"] == 0 ? true : false;
+      bool isAvailable = data["checkId"] == 0;
+
+      // Show dialog based on response
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('아이디 확인'),
+            content: Text(message),
+            actions: <Widget>[
+              TextButton(
+                child: Text('확인'),
+                onPressed: () {
+                  Navigator.of(context).pop();  // 다이얼로그 닫기
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+      // Optional: update the UI state based on ID availability
+      if (isAvailable) {
+        print("사용가능한 아이디");
+      } else {
+        print("중복된 아이디");
+      }
+    } else {
+      // Handle errors or invalid status codes here
+      print('서버 오류: ${response.statusCode}');
+    }
+  }
 
 
   bool _isPasswordVisible = false;
@@ -225,27 +283,65 @@ class __SignUpFormState extends State<_SignUpForm> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextFormField(
-              controller: _idTextEditController,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return '아이디를 입력해주세요';
-                }
-                if (!RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
-                  return '특수문자는 사용이 불가능합니다';
-                }
-                if (value.length < 6) {
-                  return '6자 이상이어야 합니다';
-                }
-                return null;
-              },
-              decoration: const InputDecoration(
-                labelText: 'ID',
-                hintText: '아이디',
-                prefixIcon: Icon(Icons.email_outlined),
-                border: OutlineInputBorder(),
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 10.0),
+              child: Row(
+                children: [
+                       Expanded(
+                flex: 7,
+                child:   TextFormField(
+                  controller: _idTextEditController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return '아이디를 입력해주세요';
+                    }
+                    if (!RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
+                      return '특수문자는 사용이 불가능합니다';
+                    }
+                    if (value.length < 6) {
+                      return '6자 이상이어야 합니다';
+                    }
+                    if(!checkId){
+                      return '중복체크를 완료해주세요';
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'ID',
+                    hintText: '아이디',
+                    prefixIcon: Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+                  Expanded(
+                    flex: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero, // 모서리를 전혀 둥글지 않게 설정
+                              )
+                          ),
+                        ),
+
+                        child: Text("중복체크"),
+                        onPressed: () {
+                          if (_idTextEditController.text.isNotEmpty) {
+                            checkDupId(context,_idTextEditController.text);
+                          } else {
+                            print("아이디를 입력해주세요.");
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+
             _gap(),
             TextFormField(
               controller: _pwTextEditController,
@@ -350,7 +446,7 @@ class __SignUpFormState extends State<_SignUpForm> {
           margin: EdgeInsets.symmetric(vertical: 10.0),
           child: Row(
             children: [
-              Expanded(
+         /*     Expanded(
                 flex: 6,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -359,9 +455,9 @@ class __SignUpFormState extends State<_SignUpForm> {
                     _selectdDate == null ? "생일 선택" : _selectdDate.toString(),
                   ),
                 ),
-              ),
+              ),*/
               Expanded(
-                flex: 4,
+                flex: 10,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: ElevatedButton.icon(
@@ -373,7 +469,7 @@ class __SignUpFormState extends State<_SignUpForm> {
                       ),
                     ),
                     icon: Icon(Icons.date_range),
-                    label: Text("날짜 선택"),
+                    label: Text(_selectdDate == null ? "생일 선택" : _selectdDate.toString(),),
                     onPressed: () {
                       showDatePicker(
                         context: context,
@@ -460,18 +556,22 @@ class __SignUpFormState extends State<_SignUpForm> {
                   if (_formKey.currentState!.validate()) {
                     // Validation successful, process data
                     final Map<String, String> formData = {
-                      'id': _idTextEditController.text,
-                      'pw': _pwTextEditController.text,
+                      'userId': _idTextEditController.text,
+                      'userPw': _pwTextEditController.text,
                       'name': _nameTextEditController.text,
                       'churchCode': _churchCodeTextEditController.text,
-                      'department': _departmentTextEditController.text,
-                      'birthDate': _selectdDate!,
+                      'dept': _departmentTextEditController.text,
+                      'birth': _selectdDate!,
                       'phone': _phoneTextEditController.text,
                       'gender': _gender,
                     };
-
+                    await userService.userJoin(formData);
                     // Optionally, send formData to backend API
                     // Navigate to next screen or display a message
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignInPage2()),
+                    );
                   }
                 },
                 child: const Padding(

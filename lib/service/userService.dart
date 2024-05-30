@@ -72,15 +72,16 @@ Future<void> getUserInfo(String userid, String token) async {
 Future<void> userJoin(Map<String, String> formData)async {
   String realUrl = apiUrl + "user/user.php";
   //final response = await http.get(Uri.parse(realUrl),);
+  formData["path"] = "userJoin";
+  String formBody = formData.entries.map((entry) {
+    return '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}';
+  }).join('&');
   LoginUser loginUser = LoginUser.instance;
   final response =
   await http.post(Uri.parse(realUrl), headers: <String, String>{
     "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-  }, body: <String, String>{
-    "path": "userJoin",
-    "userId": formData['id']!,
-    "userPw" :  formData['pw']!
-  });
+  }, body: formBody);
+
   if (response.statusCode == 200) {
     // JSON 데이터에서 탤런트 값을 파싱
     var data = json.decode(response.body);

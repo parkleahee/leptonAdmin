@@ -224,25 +224,7 @@ class _User_Main_PageState extends State<User_Main_Page>  {
       ),
           ],
         ),
-        bottomNavigationBar: BottomAppBar(
-          elevation: 5.0,
-          child: Row(
-            children: <Widget>[
-              const SizedBox(width: 16.0),
-              IconButton(
-                icon: const Icon(Icons.home),
-                onPressed: () {},
-                color: Colors.deepOrange,
-              ),
-              const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.message),
-                onPressed: () {},
-              ),
-              const SizedBox(width: 16.0),
-            ],
-          ),
-        ),
+
         floatingActionButton: MaterialButton(
           onPressed: () {},
           color: Colors.green,
