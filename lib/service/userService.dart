@@ -115,7 +115,7 @@ Future<int> getUserTalent(String userid) async {
   }
 }
 
-Future<List> getUseList(String userid) async {
+Future<List> getUseList(String userid, int page, int limit) async {
   String realUrl = apiUrl + "user/user.php";
   //final response = await http.get(Uri.parse(realUrl),);
   print("잔액");
@@ -126,6 +126,8 @@ Future<List> getUseList(String userid) async {
   }, body: <String, String>{
     "path": "getUseList",
     "userId": userid,
+    "page" : page.toString(),
+    "limit" : limit.toString(),
   });
   if (response.statusCode == 200) {
     // JSON 데이터에서 탤런트 값을 파싱

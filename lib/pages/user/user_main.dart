@@ -35,7 +35,7 @@ class _User_Main_PageState extends State<User_Main_Page>  {
 
   Future<void> initAsync() async {
     // 사용자 사용 내역 목록을 가져오는 비동기 함수
-    List newUseList = await userService.getUseList(loginUser.userId.toString());
+    List newUseList = await userService.getUseList(loginUser.userId.toString(),1,3);
     setState(() {
       useList = newUseList;
     });
@@ -44,10 +44,8 @@ class _User_Main_PageState extends State<User_Main_Page>  {
   void checkTelent() async {
     // 서버로부터 탤런트 값을 가져오는 가정된 메서드
     int currentTalent = await userService.getUserTalent(loginUser.userId.toString());
-    List newUseList = await userService.getUseList(loginUser.userId.toString());
-    print(newUseList);
-    print(newUseList[0]['content']);
     if (loginUser.talent != currentTalent) {
+      List newUseList = await userService.getUseList(loginUser.userId.toString(),1,3);
       setState(() {
         loginUser.talent = currentTalent; // 상태 업데이트
         useList = newUseList;
