@@ -232,7 +232,7 @@ class __FormContentState extends State<_FormContent> {
                   ),
                   onPressed: () async {
                     setState(() {
-                      var titlestr = '예배 콘티 관리 v1.2';
+               //       var titlestr = '예배 콘티 관리 v1.2';
                     });
                         Navigator.push(
                           context,

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:worshipsheet/dto/loginUser.dart';
+import 'package:worshipsheet/pages/board/talent_use_list.dart';
 import 'package:worshipsheet/property.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:worshipsheet/service/userService.dart';
@@ -128,6 +129,10 @@ class _User_Main_PageState extends State<User_Main_Page>  {
                     onTap: () async {
                       // 버튼을 눌렀을 때의 동작을 정의합니다.
                       // 예를 들어, 다른 페이지로 이동하거나 다른 동작을 수행할 수 있습니다.
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Talent_Use_List()),
+                      );
                     },
                     child: _buildWikiCategory(
                       FontAwesomeIcons.calendarCheck,
@@ -223,19 +228,7 @@ class _User_Main_PageState extends State<User_Main_Page>  {
           ],
         ),
 
-        floatingActionButton: MaterialButton(
-          onPressed: () {},
-          color: Colors.green,
-          textColor: Colors.white,
-          minWidth: 0,
-          elevation: 4.0,
-          padding: const EdgeInsets.all(8.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          child: const Icon(Icons.add),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
       ),
     );
   }
