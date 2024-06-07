@@ -10,16 +10,19 @@ import 'package:lepton/service/userService.dart';
 import 'package:lepton/property.dart';
 import 'package:http/http.dart' as http;
 
+import '../../dto/loginUser.dart';
+
 UserService _userService = UserService();
-class SignInPage extends StatefulWidget {
-  const SignInPage({Key? key}) : super(key: key);
+LoginUser loginUser = LoginUser.instance;
+class EditProfilePage extends StatefulWidget {
+  const EditProfilePage({Key? key}) : super(key: key);
 
   @override
-  _SignInPageState createState() => _SignInPageState();
+  _EditProfilePageState createState() => _EditProfilePageState();
 
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
@@ -72,7 +75,7 @@ class _Logo extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            "회원가입",
+            "내 정보 수정",
             textAlign: TextAlign.center,
             style: GoogleFonts.notoSans(
               fontSize: 20,
@@ -100,21 +103,18 @@ class __SignUpFormState extends State<_SignUpForm> {
   final _churchCodeTextEditController = TextEditingController();
   final _churchSearchTextEditController = TextEditingController();
   final _departmentTextEditController = TextEditingController();
-  final _birthDateTextEditController = TextEditingController();
   final _phoneTextEditController = TextEditingController();
   bool _isLoading = false;
   bool _hasMore = true;
-  String _churchName = "클릭하여 교회 검색";
-  String _churchNum = "";
-  String _gender = '';
+  String _churchName = loginUser.churchName!;
+  String _churchNum = loginUser.userChurch!;
   bool checkId = false;
   bool _uploadFailed = false;
   int _page = 1;
   int _page2 = 1;
   List<dynamic> _posts = []; //검색한 교회 목록
-  List<String> dropdownItems = []; // 부서 옵션 목록
-  String? selectedOption; // 선택된 옵션을 저장할 변수
-  String? _selectdDate;
+  List<String> dropdownItems = [loginUser.userDept!]; // 부서 옵션 목록
+  String? selectedOption = loginUser.userDept; // 선택된 옵션을 저장할 변수
   Image? _image;
   String img64 = "";
 
@@ -125,13 +125,13 @@ class __SignUpFormState extends State<_SignUpForm> {
     _nameTextEditController.dispose();
     _churchCodeTextEditController.dispose();
     _departmentTextEditController.dispose();
-    _birthDateTextEditController.dispose();
     _scrollController.dispose();
     _phoneTextEditController.dispose();
     super.dispose();
   }
 
   void initState() {
+    _loadInitialData();
     super.initState();
     _scrollController.addListener(_onScroll);
     _idTextEditController.addListener(_printLatestValue);
@@ -151,7 +151,15 @@ class __SignUpFormState extends State<_SignUpForm> {
       _loadMoreData();
     }
   }
-
+  void _loadInitialData() async {
+    setState(() => _isLoading = true);
+    // API 호출을 통해 사용자의 기존 정보를 로드합니다.
+    // 예시로, 사용자 정보를 불러오는 API가 있다고 가정합니다.
+    _nameTextEditController.text = loginUser.userName!;
+    _phoneTextEditController.text = loginUser.phone!;
+     _loadDeptData();
+    setState(() => _isLoading = false);
+  }
   void _loadMoreData([StateSetter? setStateDialog]) async {
     setState(() => _isLoading = true);  // 클래스 레벨의 상태 변경
     String realUrl = apiUrl + "user/user.php";
@@ -196,7 +204,7 @@ class __SignUpFormState extends State<_SignUpForm> {
 
     if (response.statusCode == 200) {
       List<dynamic> jsonData = json.decode(response.body);
-
+      print(jsonData);
       // 'Dept' 키에 해당하는 값만 추출하여 새 리스트 생성
       List<String> dropdownItems = jsonData.map((item) {
         return item['Dept'].toString(); // 각 항목에서 'Dept' 키의 값을 문자열로 변환
@@ -250,57 +258,6 @@ class __SignUpFormState extends State<_SignUpForm> {
     }
   }
 
-  Future<void> checkDupId(BuildContext context, String userId) async {
-    String realUrl = apiUrl + "user/user.php";
-    final response = await http.post(
-      Uri.parse(realUrl),
-      headers: <String, String>{
-        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-      },
-      body: {
-        "path": "checkId",
-        "userId": userId,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      print(response.body);  // For debugging purposes
-
-      String message = data["checkId"] == 0 ? "사용가능한 아이디입니다." : "중복된 아이디입니다.";
-      checkId = data["checkId"] == 0 ? true : false;
-      bool isAvailable = data["checkId"] == 0;
-
-      // Show dialog based on response
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('아이디 확인'),
-            content: Text(message),
-            actions: <Widget>[
-              TextButton(
-                child: Text('확인'),
-                onPressed: () {
-                  Navigator.of(context).pop();  // 다이얼로그 닫기
-                },
-              ),
-            ],
-          );
-        },
-      );
-
-      // Optional: update the UI state based on ID availability
-      if (isAvailable) {
-        print("사용가능한 아이디");
-      } else {
-        print("중복된 아이디");
-      }
-    } else {
-      // Handle errors or invalid status codes here
-      print('서버 오류: ${response.statusCode}');
-    }
-  }
 
 
   bool _isPasswordVisible = false;
@@ -318,74 +275,15 @@ class __SignUpFormState extends State<_SignUpForm> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 10.0),
-              child: Row(
-                children: [
-                       Expanded(
-                flex: 7,
-                child:   TextFormField(
-                  controller: _idTextEditController,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return '아이디를 입력해주세요';
-                    }
-                    if (!RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
-                      return '특수문자는 사용이 불가능합니다';
-                    }
-                    if (value.length < 6) {
-                      return '6자 이상이어야 합니다';
-                    }
-                    if(!checkId){
-                      return '중복체크를 완료해주세요';
-                    }
-                    return null;
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'ID',
-                    hintText: '아이디',
-                    prefixIcon: Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-                  Expanded(
-                    flex: 3,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero, // 모서리를 전혀 둥글지 않게 설정
-                              )
-                          ),
-                        ),
-
-                        child: Text("중복체크"),
-                        onPressed: () {
-                          if (_idTextEditController.text.isNotEmpty) {
-                            checkDupId(context,_idTextEditController.text);
-                          } else {
-                            print("아이디를 입력해주세요.");
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
             _gap(),
             TextFormField(
               controller: _pwTextEditController,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return '비밀번호를 입력해주세요';
-                }
-                if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$').hasMatch(value)) {
-                  return '비밀번호는 알파벳과 숫자를 포함해 8자리 이상이여야 합니다';
+                if (!(value == null || value.isEmpty)) {
+                  if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$').hasMatch(value)) {
+                    return '비밀번호는 알파벳과 숫자를 포함해 8자리 이상이여야 합니다';
+                  }
                 }
                 return null;
               },
@@ -405,22 +303,6 @@ class __SignUpFormState extends State<_SignUpForm> {
                     });
                   },
                 ),
-              ),
-            ),
-            _gap(),
-            TextFormField(
-              controller: _nameTextEditController,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return '이름을 입력해주세요';
-                }
-                return null;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                hintText: '이름',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(),
               ),
             ),
             _gap(),
@@ -454,7 +336,7 @@ class __SignUpFormState extends State<_SignUpForm> {
           child:
             DropdownButton<String>(
               value: selectedOption,
-              hint: Text('교회를 선택해 주세요'), // 드롭다운이 선택되지 않았을 때 보여줄 텍스트
+              hint: Text(_churchName), // 드롭다운이 선택되지 않았을 때 보여줄 텍스트
               icon: Icon(Icons.arrow_downward), // 드롭다운 아이콘
               iconSize: 24, // 아이콘 크기
               elevation: 16, // 드롭다운의 그림자 깊이
@@ -491,38 +373,7 @@ class __SignUpFormState extends State<_SignUpForm> {
                   ),
                 ),
               ),*/
-              Expanded(
-                flex: 10,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: ElevatedButton.icon(
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero, // 모서리를 전혀 둥글지 않게 설정
-                          )
-                      ),
-                    ),
-                    icon: Icon(Icons.date_range),
-                    label: Text(_selectdDate == null ? "생일 선택" : _selectdDate.toString(),),
-                    onPressed: () {
-                      showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(1950),
-                        lastDate: (DateTime.now().add(Duration(days: 365 * 10))),
-                      ).then((value) {
-                        if (value != null) {
-                          setState(() {
-                            String formattedDate = value.toString().substring(0, 10); // yyyy-MM-dd 형식의 날짜 문자열
-                            _selectdDate = formattedDate;
-                          });
-                        }
-                      });
-                    },
-                  ),
-                ),
-              ),
+
             ],
           ),
         ),
@@ -545,39 +396,7 @@ class __SignUpFormState extends State<_SignUpForm> {
                 border: OutlineInputBorder(),
               ),
             ),
-            _gap(),
-            Row(
-              children: [
-                Expanded(
-                  child: ListTile(
-                    title: const Text('남자'),
-                    leading: Radio(
-                      value: 'M',
-                      groupValue: _gender,
-                      onChanged: (String? value) {
-                        setState(() {
-                          _gender = value!;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: ListTile(
-                    title: const Text('여자'),
-                    leading: Radio(
-                      value: 'W',
-                      groupValue: _gender,
-                      onChanged: (String? value) {
-                        setState(() {
-                          _gender = value!;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
+
             _gap(),
             buildImage(context),
             _gap(),
@@ -593,23 +412,20 @@ class __SignUpFormState extends State<_SignUpForm> {
                   if (_formKey.currentState!.validate()) {
                     // Validation successful, process data
                     final Map<String, String> formData = {
-                      'userId': _idTextEditController.text,
-                      'userPw': _pwTextEditController.text,
-                      'name': _nameTextEditController.text,
-                      'churchName':_churchName,
-                      'churchCode': _churchCodeTextEditController.text,
+                      'userPw': _pwTextEditController.text==""? loginUser.userPw! :_pwTextEditController.text,
+                      'churchName':_churchCodeTextEditController.text,
+                      'churchCode': _churchNum,
                       'dept': _departmentTextEditController.text,
-                      'birth': _selectdDate!,
                       'phone': _phoneTextEditController.text,
-                      'gender': _gender,
                       'img' : img64,
                     };
-                    await userService.userJoin(formData);
+              //      print(formData);
+                    await userService.userReg(formData);
                     // Optionally, send formData to backend API
                     // Navigate to next screen or display a message
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SignInPage2()),
+                      MaterialPageRoute(builder: (context) => User_Main_Page()),
                     );
                   }
                 },
@@ -617,13 +433,12 @@ class __SignUpFormState extends State<_SignUpForm> {
                 child: const Padding(
                   padding: EdgeInsets.all(10.0),
                   child: Text(
-                    'Sign Up',
+                    '수정하기',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
             ),
-            _gap(),
           ],
         ),
       ),
@@ -743,8 +558,7 @@ class __SignUpFormState extends State<_SignUpForm> {
   }
 
   Widget buildImage(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -752,11 +566,6 @@ class __SignUpFormState extends State<_SignUpForm> {
           if (_image != null)
             _image!,
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
             onPressed: () async {
               dynamic result = await _getFromGallery();
               if (result is Image) {

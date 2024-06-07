@@ -4,7 +4,11 @@ class LoginUser {
   String? userPw;
   String? userName;
   String? userChurch;
+  String? img;
   int? talent;
+  String? phone;
+  String? userDept;
+  String? churchName;
 
   // 내부 생성자
   LoginUser._internal();
@@ -18,6 +22,10 @@ class LoginUser {
     userName = json['userName'];
     userChurch = json['userChurch'];
     talent = json['talent'];
+    img = json['img'];
+    phone = json['userPhone'];
+    userDept = json['userDept'];
+    churchName = json['churchName'];
   }
 
   Map<String, dynamic> getQrMap () {

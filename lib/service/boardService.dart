@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
-import 'package:worshipsheet/property.dart';
+import 'package:lepton/property.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 

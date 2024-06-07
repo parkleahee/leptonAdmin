@@ -1,5 +1,5 @@
-import 'package:worshipsheet/dto/user.dart';
-import 'package:worshipsheet/property.dart';
+import 'package:lepton/dto/user.dart';
+import 'package:lepton/property.dart';
 import '../dto/loginUser.dart';
 import 'jwtService.dart';
 
@@ -141,5 +141,33 @@ Future<List> getUseList(String userid, int page, int limit) async {
 }
 
 
+
+Future<void>  userReg(Map<String, String> formData)async {
+  LoginUser loginUser = LoginUser.instance;
+  String realUrl = apiUrl + "user/user.php";
+  //final response = await http.get(Uri.parse(realUrl),);
+  formData["path"] = "userReg";
+  formData["userId"] = loginUser.userId!;
+  String formBody = formData.entries.map((entry) {
+    return '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}';
+  }).join('&');
+  final response =
+  await http.post(Uri.parse(realUrl), headers: <String, String>{
+    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+  }, body: formBody);
+
+  if (response.statusCode == 200) {
+    // JSON 데이터에서 탤런트 값을 파싱
+    // 'talent'는 서버 응답의 JSON 키입니다. 실제 키로 교체해야 합니다.
+    print(response.body);
+    //  Map<String, dynamic> jsonData = jsonDecode(response.body);
+   //   loginUser.fromJson(jsonData);
+      // print(loginUser.team);
+
+  } else {
+    throw Exception('Failed to load user talent');
+  }
+  print(response.body);
+}
 }//클래스 end
 

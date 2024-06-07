@@ -3,11 +3,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:worshipsheet/dto/loginUser.dart';
-import 'package:worshipsheet/pages/board/talent_use_list.dart';
-import 'package:worshipsheet/property.dart';
+import 'package:lepton/dto/loginUser.dart';
+import 'package:lepton/pages/board/talent_use_list.dart';
+import 'package:lepton/pages/user/user_reg.dart';
+import 'package:lepton/property.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:worshipsheet/service/userService.dart';
+import 'package:lepton/service/userService.dart';
 
 import '../board/board_list.dart';
 
@@ -29,10 +30,23 @@ class _User_Main_PageState extends State<User_Main_Page>  {
   @override
   void initState() {
     super.initState();
+    print("initState 호출됨");
     // 타이머 설정, 5초마다 checkTelent 호출
-    _timer = Timer.periodic(Duration(seconds: 5), (Timer t) => checkTelent());
+    _timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
+//      print("타이머 작동 중");
+      checkTelent();
+    });
     initAsync();
   }
+
+  @override
+  void dispose() {
+    // 페이지가 파괴될 때 타이머를 취소
+ //   print("dispose 호출됨, 타이머 정지");
+    _timer?.cancel();
+    super.dispose();
+  }
+
 
   Future<void> initAsync() async {
     // 사용자 사용 내역 목록을 가져오는 비동기 함수
@@ -97,10 +111,23 @@ class _User_Main_PageState extends State<User_Main_Page>  {
             Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-              child: CircleAvatar(
-                maxRadius: 15.0,
-                backgroundImage: NetworkImage(logoUrl),
-              ),
+              child:// GestureDetector를 사용하여 CircleAvatar에 탭 기능 추가
+              GestureDetector(
+                onTap: () {
+                  _timer?.cancel();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditProfilePage()), // EditProfilePage로 이동
+                  );
+                },
+                child: CircleAvatar(
+                  maxRadius: 15.0,
+                  backgroundImage: loginUser.img == "" || loginUser.img == null
+                      ? MemoryImage(base64Decode(logoImg))  // 기본 로고 이미지 사용
+                      : MemoryImage(base64Decode(loginUser.img!)),  // 사용자의 이미지 사용
+                ),
+              )
+
             )
           ],
         ),
@@ -129,6 +156,7 @@ class _User_Main_PageState extends State<User_Main_Page>  {
                     onTap: () async {
                       // 버튼을 눌렀을 때의 동작을 정의합니다.
                       // 예를 들어, 다른 페이지로 이동하거나 다른 동작을 수행할 수 있습니다.
+                      _timer?.cancel();
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => Talent_Use_List()),

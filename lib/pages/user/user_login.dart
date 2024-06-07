@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:worshipsheet/pages/user/user_join.dart';
-import 'package:worshipsheet/pages/user/user_main.dart';
-import 'package:worshipsheet/service/userService.dart';
-import 'package:worshipsheet/property.dart';
+import 'package:lepton/pages/user/user_join.dart';
+import 'package:lepton/pages/user/user_main.dart';
+import 'package:lepton/service/userService.dart';
+import 'package:lepton/property.dart';
 
 
 UserService _userService = UserService();

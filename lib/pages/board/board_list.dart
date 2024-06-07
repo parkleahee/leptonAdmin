@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:worshipsheet/property.dart';
+import 'package:lepton/property.dart';
 import 'dart:convert';
 
 

@@ -1,4 +1,4 @@
-import 'package:worshipsheet/property.dart';
+import 'package:lepton/property.dart';
 import 'package:http/http.dart' as http;
 
 class JwtService{
