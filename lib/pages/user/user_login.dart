@@ -68,7 +68,7 @@ class _Logo extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            "예배 콘티 관리",
+            "랩돈 주머니",
             textAlign: TextAlign.center,
             style: GoogleFonts.notoSans(
               fontSize: 20,
@@ -110,7 +110,7 @@ class __FormContentState extends State<_FormContent> {
 
   @override
   Widget build(BuildContext context) {
-    var titlestr = '예배 콘티 관리 1.0';
+    var titlestr = '';
     var id = "";
     var pw = "";
     return Container(

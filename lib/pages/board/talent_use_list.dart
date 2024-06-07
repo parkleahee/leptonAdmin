@@ -82,37 +82,14 @@ class _Talent_Use_ListState extends State<Talent_Use_List> {
               height: 60,
               width: double.infinity,
               decoration: BoxDecoration(
-                  color: Color.fromRGBO(122, 122, 122, 0.8),
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(30),
                       bottomRight: Radius.circular(30))),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.menu,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      "콘티 리스트",
-                      style: GoogleFonts.notoSans(
-                        color: Colors.white,
-                        fontSize: 20,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.filter_list,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
+              child:  Text(
+                "콘티 리스트",
+                style: GoogleFonts.notoSans(
+                  color: Colors.white,
+                  fontSize: 20,
                 ),
               ),
             ),
