@@ -147,7 +147,7 @@ class _User_Main_PageState extends State<User_Main_Page>  {
                 Expanded(
                   child: GestureDetector(
                     child: _buildWikiCategory(FontAwesomeIcons.coins,
-                "내 달란트 : " + loginUser.talent.toString(),  Colors.black.withOpacity(0.7),),
+                "달란트 현황 관리",  Colors.black.withOpacity(0.7),),
               ),
                   ),
                 const SizedBox(width: 16.0),
@@ -164,7 +164,7 @@ class _User_Main_PageState extends State<User_Main_Page>  {
                     },
                     child: _buildWikiCategory(
                       FontAwesomeIcons.calendarCheck,
-                      "사용 내역",
+                      "학생 목록",
                       Colors.deepOrange.withOpacity(0.7),
                     ),
                   ),
@@ -193,48 +193,6 @@ class _User_Main_PageState extends State<User_Main_Page>  {
             Column(
               children: <Widget>[
                 const SizedBox(height: 10.0),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(), // 스크롤 동작을 부모 ListView에 위임
-                  itemCount: useList.length, // useList의 길이만큼 아이템 수 설정
-                  itemBuilder: (BuildContext context, int index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 5.0), // 각 아이템 하단에 5.0의 공간 추가
-                      child:Column(
-                        children: [
-                          Row(
-                            children : [
-                              Padding(padding: EdgeInsets.only(left:5.0,right: 5.0)),
-                      Text(
-                        useList[index]['content'], // useList의 content 필드 사용
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                              ]
-                          ),
-                          Row(
-                          mainAxisAlignment : MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                useList[index]['talent'].toString(), // useList의 talent 필드 사용
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                  color: Colors.grey.shade700,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              Padding(padding: EdgeInsets.only(left:5.0,right: 5.0)),
-                            ],
-                          ),
-                      ],
-                      ),
-                    );
-                  },
-                ),
               ],
             ),
             const SizedBox(height: 20.0),
@@ -247,10 +205,11 @@ class _User_Main_PageState extends State<User_Main_Page>  {
               ],
             ),
             Center(
-        child: QrImageView(
-          data: jsonEncode(loginUser.getQrMap()),
-          backgroundColor: Colors.white,
-          size: 200,
+        child: Expanded(
+          child: GestureDetector(
+            child: _buildWikiCategory(FontAwesomeIcons.coins,
+              "QR 읽기",  Colors.black.withOpacity(0.7),),
+          ),
         ),
       ),
           ],
