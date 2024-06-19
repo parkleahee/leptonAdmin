@@ -2,23 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:lepton/dto/user.dart';
+import 'package:lepton/pages/student/student_wallet.dart';
 import 'package:lepton/pages/user/user_main.dart';
 import 'package:lepton/property.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 
-import 'package:lepton/service/userService.dart';
+import '../../service/studentService.dart';
 
-UserService userService =UserService();
-class Talent_Use_List extends StatefulWidget {
+StudentService userService = StudentService();
+
+class Student_List extends StatefulWidget {
   @override
-  _Talent_Use_ListState createState() => _Talent_Use_ListState();
+  _Student_ListState createState() => _Student_ListState();
 }
 
-class _Talent_Use_ListState extends State<Talent_Use_List> {
+class _Student_ListState extends State<Student_List> {
   List<dynamic> _posts = [];
   int _page = 1;
-  final int _limit = 10;
+  final int _limit = 15;
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
   bool _hasMore = true;
@@ -46,6 +48,8 @@ class _Talent_Use_ListState extends State<Talent_Use_List> {
     }
   }
 
+
+
   Future<void> _loadMoreData() async {
     setState(() {
       _isLoading = true;
@@ -55,7 +59,11 @@ class _Talent_Use_ListState extends State<Talent_Use_List> {
     // final response = await http.get(
     //   Uri.parse('https://jsonplaceholder.typicode.com/posts?_page=$_page&_limit=$_limit'),
     // );
-    List newUseList = await  userService.getUseList(loginUser.userId.toString(), _page, _limit);
+    List newUseList = await userService.getStudentList(
+        loginUser.userChurch.toString(),
+        loginUser.userDept.toString(),
+        _page,
+        _limit);
 
     setState(() {
       _posts.addAll(newUseList);
@@ -67,7 +75,6 @@ class _Talent_Use_ListState extends State<Talent_Use_List> {
         _hasMore = false;
       }
     });
-
   }
 
   @override
@@ -85,8 +92,8 @@ class _Talent_Use_ListState extends State<Talent_Use_List> {
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(30),
                       bottomRight: Radius.circular(30))),
-              child:  Text(
-                "콘티 리스트",
+              child: Text(
+                "학생 리스트",
                 style: GoogleFonts.notoSans(
                   color: Colors.white,
                   fontSize: 20,
@@ -94,7 +101,7 @@ class _Talent_Use_ListState extends State<Talent_Use_List> {
               ),
             ),
 
-           Text("사용내역"),
+            Text("학생 목록"),
             Expanded(
               child: ListView.separated(
                 controller: _scrollController,
@@ -116,7 +123,6 @@ class _Talent_Use_ListState extends State<Talent_Use_List> {
                     const Divider(),
               ),
             ),
-
           ],
         ),
       ),
@@ -124,49 +130,66 @@ class _Talent_Use_ListState extends State<Talent_Use_List> {
   }
 
   Widget buildList(BuildContext context, int index) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 5.0), // 각 아이템 하단에 5.0의 공간 추가
-      child:Column(
-        children: [
-          Row(
-              children : [
-                Padding(padding: EdgeInsets.only(left:5.0,right: 5.0)),
-                Text(
-                  _posts[index]['content'], // useList의 content 필드 사용
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+    return InkWell(
+      onTap: () async {
+        print(_posts[index]['userId']);
+        User student = await userService.getStudent(_posts[index]['userId']);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => StudentWalletPage(student)),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 5.0), // 각 아이템 하단에 5.0의 공간 추가
+        child: Column(
+          children: [
+            Row(children: [
+              Padding(padding: EdgeInsets.only(left: 5.0, right: 5.0)),
+              Text(
+                _posts[index]['userName'], // useList의 content 필드 사용
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // 양쪽 끝으로 자식들을 밀어내는 속성
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  // 왼쪽 텍스트에 패딩 추가
+                  child: Text(
+                    _posts[index]['userBirth'], // 사용자 생일 표시
+                    textAlign: TextAlign.left, // 왼쪽 정렬
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-              ]
-          ),
-          Row(
-            mainAxisAlignment : MainAxisAlignment.end,
-            children: [
-              Text(
-            //    _posts[index]['regDate'].toString(), // useList의 talent 필드 사용
-                DateFormat("yyyy년 M월 d일 H시 m분").format(DateTime.parse(_posts[index]['regDate'].toString())),
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  color: Colors.grey.shade700,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                Spacer(), // 이 Spacer는 두 텍스트 사이의 공간을 자동으로 채웁니다.
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  // 오른쪽 텍스트에 패딩 추가
+                  child: Text(
+                    _posts[index]['talent'].toString() + "달란트",
+                    // 사용자의 talent 표시
+                    textAlign: TextAlign.right, // 오른쪽 정렬
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
-              ),
-              Text(
-                _posts[index]['talent'].toString()+"달란트", // useList의 talent 필드 사용
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  color: Colors.grey.shade700,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              Padding(padding: EdgeInsets.only(left:5.0,right: 5.0)),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -5,7 +5,6 @@ class LoginUser {
   String? userName;
   String? userChurch;
   String? img;
-  int? talent;
   String? phone;
   String? userDept;
   String? churchName;
@@ -21,7 +20,6 @@ class LoginUser {
     userPw = json['userPw'];
     userName = json['userName'];
     userChurch = json['userChurch'];
-    talent = json['talent'];
     img = json['img'];
     phone = json['userPhone'];
     userDept = json['userDept'];

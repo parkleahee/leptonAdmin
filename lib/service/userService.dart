@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 class UserService{
 
 
-Future<bool> login(String id, String pw) async {
+Future<String> login(String id, String pw) async {
   JwtService jwtService = JwtService();
   LoginUser loginUser = LoginUser.instance;
   /// do something
@@ -31,20 +31,30 @@ Future<bool> login(String id, String pw) async {
     print(response.body);
     //   List<dynamic> jsonList = jsonDecode(response.body);
     Map<String, dynamic> jsonData = jsonDecode(response.body);
-    loginUser.fromJson(jsonData);
-    bool result = await jwtService.getJwt(id, pw).then((value)  async {
-      if (value) {
-        storage.write(key: 'userId', value: loginUser.userId);
-        storage.write(key: 'userPw', value: loginUser.userPw);
+    print(jsonData['approve']);
+    if(jsonData['approve']=='A') {
+      loginUser.fromJson(jsonData);
+      bool result = await jwtService.getJwt(id, pw).then((value) async {
+        if (value) {
+          storage.write(key: 'userId', value: loginUser.userId);
+          storage.write(key: 'userPw', value: loginUser.userPw);
 
-        return true;
-      }else{
-        return false;
+          return true;
+        } else {
+          return false;
+        }
+      });
+      if(result){
+        return "t";
+      }else {
+        return "f";
       }
-    });
-    return result;
+
+    } else {
+      return "n";
+    }
   }else{
-    return false;
+    return "f";
   }
 }
 

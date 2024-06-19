@@ -204,16 +204,36 @@ class __FormContentState extends State<_FormContent> {
                     });
                     _userService.login(
                         _idTextEditController.text, _pwTextEditController.text).then((value) {
-                      print('로그인 성공'+value.toString());
-                      if(value){
+                      print('로그인 성공' + value.toString());
+                      if(value == "t"){
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => User_Main_Page()),
                         );
                         print('check');
+                      } else if(value == "n"){
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('승인 대기 중'),
+                              content: Text("승인이 아직 완료되지 않았습니다."),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('확인'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();  // 다이얼로그 닫기
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       }
                     });
-                  }),
+                  }
+
+              ),
             ), _gap(),
             SizedBox(
               width: double.infinity,
@@ -249,4 +269,6 @@ class __FormContentState extends State<_FormContent> {
   }
 
   Widget _gap() => const SizedBox(height: 16);
+
+
 }
